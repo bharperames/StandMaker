@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sphere Stand Generator | 3D Printing Utility</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --primary: #475569;
+            --primary-hover: #334155;
+            --bg: #e2e8f0;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-main: #1e293b;
+            --text-dim: #64748b;
+            --accent: #3b82f6;
+            --sidebar-width: 360px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            z-index: 10;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .help-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid var(--text-dim);
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 20;
+        }
+
+        .help-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .tooltip {
+            position: absolute;
+            top: 4.5rem;
+            right: 2rem;
+            width: 300px;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            font-size: 0.8rem;
+            line-height: 1.5;
+            display: none;
+            z-index: 100;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .help-btn:hover+.tooltip,
+        .tooltip:hover {
+            display: block;
+        }
+
+        .tooltip h3 {
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+        }
+
+        .tooltip p {
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+
+        .tooltip strong {
+            color: var(--text-main);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 0.5rem;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 400;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .num-input {
+            width: 70px;
+            padding: 4px 6px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: right;
+            background: white;
+            color: var(--text-main);
+            border-right: none;
+        }
+
+        .unit-tag {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 4px 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-left: none;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+            display: flex;
+            align-items: center;
+            min-width: 36px;
+            justify-content: center;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .control-row input[type="range"] {
+            flex-grow: 1;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .setting-label {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 24px;
+            padding: 0;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            background: none;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .actions {
+            margin-top: auto;
+            padding-top: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .unit-btn {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-dim);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.375rem;
+            cursor: pointer;
+        }
+
+        .unit-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .meter-container {
+            margin-top: 0.25rem;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+
+        .optimize-link {
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-decoration: underline;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+
+        .status-tag {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 3D Viewport Styling */
+        #viewport {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .badge {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            color: white;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="header">
+            <h1>Sphere Stand Gen</h1>
+            <p>High-precision 3D printing utility</p>
+        </div>
+
+        <div class="controls">
+            <div>
+                <div class="section-title">Global Setup</div>
+                <div class="input-group">
+                    <div class="setting-row">
+                        <span class="setting-label">Units</span>
+                        <div class="button-group">
+                            <button class="unit-btn active" id="unit-mm">MM</button>
+                            <button class="unit-btn" id="unit-in">IN</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label">Render Mode</span>
+                        <div class="button-group">
+                            <button class="unit-btn" id="viz-solid">Solid</button>
+                            <button class="unit-btn active" id="viz-both">Both</button>
+                            <button class="unit-btn" id="viz-tess">Mesh</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label">Sphere Color</span>
+                        <input type="color" id="color-sphere" class="color-picker" value="#facc15">
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label">Base Color</span>
+                        <input type="color" id="color-base" class="color-picker" value="#bfbfbf">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">Geometry</div>
+                <div class="input-group">
+                    <label>Sphere Diameter</label>
+                    <div class="control-row">
+                        <input type="range" id="diameter" min="5" max="300" value="50" step="1">
+                        <div class="input-wrapper">
+                            <input type="number" id="num-diameter" class="num-input" value="50" step="1">
+                            <span class="unit-tag" id="unit-label-d">mm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-top: 1rem;">
+                    <label>
+                        Base Size
+                        <span class="optimize-link" id="auto-optimize">Optimize All</span>
+                    </label>
+                    <div class="control-row">
+                        <input type="range" id="ratio" min="5" max="300" value="18" step="1">
+                        <div class="input-wrapper">
+                            <input type="number" id="num-ratio" class="num-input" value="18" step="1">
+                            <span class="unit-tag" id="unit-label-b">mm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-top: 1rem; position: relative;">
+                    <label>Wall Thickness</label>
+                    <div class="control-row">
+                        <input type="range" id="thickness" min="0.5" max="50" value="5" step="0.5">
+                        <div class="input-wrapper">
+                            <input type="number" id="num-thickness" class="num-input" value="5" step="0.5">
+                            <span class="unit-tag" id="unit-label-t">mm</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; margin-top: 4px; margin-right: 4px;">
+                        <span id="stability-label" class="status-tag">STABLE</span>
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-top: 1rem;">
+                    <label>Top Edge Chamfer</label>
+                    <div class="control-row">
+                        <input type="range" id="chamfer" min="0" max="10" value="1.5" step="0.1">
+                        <div class="input-wrapper">
+                            <input type="number" id="num-chamfer" class="num-input" value="1.5" step="0.1">
+                            <span class="unit-tag" id="unit-label-c">mm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">Generation Details</div>
+                <div class="input-group">
+                    <label>
+                        Tessellation
+                        <span class="optimize-link" id="auto-density">Smooth</span>
+                    </label>
+                    <div class="control-row">
+                        <input type="range" id="segments" min="8" max="256" value="72" step="4">
+                        <div class="input-wrapper">
+                            <input type="number" id="num-segments" class="num-input" value="72" step="4">
+                            <span class="unit-tag">seg</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; margin-top: 4px; margin-right: 4px;">
+                        <span id="quality-label" class="status-tag">±0.000mm</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="help-btn">?</div>
+            <div class="tooltip">
+                <h3>Printing Guide</h3>
+                <p><strong>Material: Why PETG?</strong><br>
+                    For heavy sustained loads (rock slabs/spheres), <strong>PETG</strong> is ideal. Unlike PLA, it
+                    doesn't "creep" (deform over time) and is less brittle. It handles impact better and is easy to
+                    print.</p>
+                <p style="margin-bottom: 0;"><strong>Format: Why 3MF?</strong><br>
+                    3MF is the modern standard. Unlike legacy STL, 3MF contains <strong>strict unit
+                        definitions</strong> and clean XML structure, preventing mesh errors.</p>
+            </div>
+        </div>
+
+        <div class="actions" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <button id="download-3mf" class="primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Download 3MF
+            </button>
+            <button id="download-btn" style="background: rgba(0,0,0,0.05); color: var(--text-dim);">
+                Legacy STL
+            </button>
+        </div>
+    </aside>
+
+    <main id="viewport"></main>
+    <div class="badge">Live 3D Preview (Three.js)</div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- State (Internal always MM) ---
+        let diameter = 50;
+        let baseSize = 18;
+        let thickness = 5;
+        let chamfer = 1.5;
+        let segments = 72;
+        let radialSubdivs = 8;
+        let currentUnit = 'mm';
+        let vizMode = 'both';
+
+        // --- Three.js Setup ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a0a);
+        const camera = new THREE.PerspectiveCamera(45, (window.innerWidth - 360) / window.innerHeight, 0.1, 2000);
+        camera.position.set(120, 120, 120);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth - 360, window.innerHeight);
+        document.getElementById('viewport').appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(100, 200, 100);
+        scene.add(dirLight);
+
+        // Environment (Grid)
+        const gridHelper = new THREE.GridHelper(1000, 100, 0x4444ff, 0x222222);
+        gridHelper.material.opacity = 0.2;
+        gridHelper.material.transparent = true;
+        scene.add(gridHelper);
+
+        const groundGeom = new THREE.PlaneGeometry(1000, 1000);
+        const groundMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
+        const ground = new THREE.Mesh(groundGeom, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -0.1;
+        scene.add(ground);
+
+        // Materials
+        const sphereMat = new THREE.MeshPhongMaterial({ color: 0xfacc15, wireframe: true, transparent: true, opacity: 0.3 });
+        const solidMaterial = new THREE.MeshPhongMaterial({ color: 0xaaaaaa, shininess: 100 });
+        const wireMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+        const overlayWireMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true, opacity: 0.2 });
+
+        const sphereRef = new THREE.Mesh(new THREE.SphereGeometry(25, 64, 32), sphereMat);
+        scene.add(sphereRef);
+
+        let standMesh, wireOverlay;
+
+        function updateGeometry() {
+            if (standMesh) scene.remove(standMesh);
+            if (wireOverlay) scene.remove(wireOverlay);
+
+            const R_sphere = diameter / 2;
+            const R_inner = baseSize - (thickness / 2);
+            const R_outer = baseSize + (thickness / 2);
+            const z_offset = R_sphere + thickness;
+
+            sphereRef.position.y = z_offset;
+            sphereRef.geometry.dispose();
+            sphereRef.geometry = new THREE.SphereGeometry(R_sphere, 64, 32);
+
+            const vertices = [];
+            const indices = [];
+
+            const getV = (i, j, isTop) => {
+                const angle = (i / segments) * Math.PI * 2;
+                const r = R_inner + (R_outer - R_inner) * (j / radialSubdivs);
+                const x = r * Math.cos(angle);
+                const z = r * Math.sin(angle);
+                let y = 0;
+                if (isTop) {
+                    const y_sphere = (rx) => z_offset - Math.sqrt(Math.max(0, R_sphere ** 2 - rx ** 2));
+                    const r_c = R_outer - chamfer;
+                    if (r > r_c) y = y_sphere(r_c) - (r - r_c);
+                    else y = y_sphere(r);
+                }
+                return new THREE.Vector3(x, y, z);
+            };
+
+            for (let i = 0; i < segments; i++) {
+                for (let j = 0; j <= radialSubdivs; j++) {
+                    vertices.push(getV(i, j, true));
+                    vertices.push(getV(i, j, false));
+                }
+            }
+
+            const stride = (radialSubdivs + 1) * 2;
+            for (let i = 0; i < segments; i++) {
+                const nxtIdx = (i + 1) % segments;
+                for (let j = 0; j < radialSubdivs; j++) {
+                    const cur = i * stride + j * 2;
+                    const nxt = nxtIdx * stride + j * 2;
+                    indices.push(cur, nxt, cur + 2); indices.push(nxt, nxt + 2, cur + 2); // Top
+                    indices.push(cur + 1, cur + 3, nxt + 1); indices.push(nxt + 1, cur + 3, nxt + 3); // Bot
+                    if (j === 0) { indices.push(cur, cur + 1, nxt); indices.push(nxt, cur + 1, nxt + 1); } // Inner
+                    if (j === radialSubdivs - 1) { indices.push(cur + 2, nxt + 2, cur + 3); indices.push(nxt + 2, nxt + 3, cur + 3); } // Outer
+                }
+            }
+
+            const geometry = new THREE.BufferGeometry().setFromPoints(vertices);
+            geometry.setIndex(indices);
+            geometry.computeVertexNormals();
+
+            if (vizMode === 'solid' || vizMode === 'both') {
+                standMesh = new THREE.Mesh(geometry, solidMaterial);
+                scene.add(standMesh);
+            }
+            if (vizMode === 'tess' || vizMode === 'both') {
+                wireOverlay = new THREE.Mesh(geometry, vizMode === 'tess' ? wireMaterial : overlayWireMaterial);
+                scene.add(wireOverlay);
+            }
+
+            // Quality/Stability
+            const contactAngle = Math.asin(Math.min(0.99, baseSize / R_sphere)) * (180 / Math.PI);
+            const sLabel = document.getElementById('stability-label');
+            if (contactAngle < 25) { sLabel.innerText = "UNSTABLE"; sLabel.style.color = "#ef4444"; }
+            else if (contactAngle < 35) { sLabel.innerText = "LOW"; sLabel.style.color = "#f59e0b"; }
+            else if (contactAngle < 55) { sLabel.innerText = "OPTIMAL"; sLabel.style.color = "#10b981"; }
+            else { sLabel.innerText = "OVERSIZED"; sLabel.style.color = "#3b82f6"; }
+
+            const arcLen = (Math.PI * 2 * R_outer) / segments;
+            document.getElementById('quality-label').innerText = `±${(arcLen / 4).toFixed(3)}mm`;
+        }
+
+        function syncInputs(id, val, forceUnit = null) {
+            const range = document.getElementById(id === 'baseSize' ? 'ratio' : id);
+            const num = document.getElementById('num-' + (id === 'baseSize' ? 'ratio' : id));
+            if (!range || !num) return;
+
+            const unit = forceUnit || currentUnit;
+            const isMM = (unit === 'mm');
+            const mmValue = isMM ? val : val * 25.4;
+
+            if (id === 'diameter') diameter = mmValue;
+            else if (id === 'baseSize') baseSize = mmValue;
+            else if (id === 'thickness') thickness = mmValue;
+            else if (id === 'chamfer') chamfer = mmValue;
+            else if (id === 'segments') segments = Math.round(val);
+
+            range.value = val;
+            num.value = val.toFixed(id === 'segments' ? 0 : (isMM ? 1 : 2));
+            updateGeometry();
+        }
+
+        ['diameter', 'thickness', 'chamfer', 'ratio', 'segments'].forEach(id => {
+            const range = document.getElementById(id);
+            const num = document.getElementById('num-' + id);
+            const stateId = id === 'ratio' ? 'baseSize' : id;
+            range.addEventListener('input', (e) => syncInputs(stateId, parseFloat(e.target.value)));
+            num.addEventListener('change', (e) => syncInputs(stateId, parseFloat(e.target.value)));
+        });
+
+        document.getElementById('auto-optimize').addEventListener('click', (e) => {
+            e.preventDefault();
+            baseSize = (diameter / 2) * 0.707;
+            thickness = diameter * 0.1;
+            chamfer = thickness * 0.3;
+            const factor = currentUnit === 'mm' ? 1 : 1 / 25.4;
+            syncInputs('baseSize', baseSize * factor);
+            syncInputs('thickness', thickness * factor);
+            syncInputs('chamfer', chamfer * factor);
+        });
+
+        document.getElementById('auto-density').addEventListener('click', () => {
+            const R_outer = baseSize + (thickness / 2);
+            let optimalN = Math.ceil(Math.PI / Math.acos(1 - 0.025 / R_outer));
+            optimalN = Math.min(256, Math.max(32, Math.ceil(optimalN / 8) * 8));
+            syncInputs('segments', optimalN);
+        });
+
+        document.getElementById('unit-mm').addEventListener('click', () => {
+            if (currentUnit === 'in') {
+                currentUnit = 'mm';
+                document.getElementById('unit-mm').classList.add('active');
+                document.getElementById('unit-in').classList.remove('active');
+                ['d', 't', 'c', 'b'].forEach(u => document.getElementById('unit-label-' + u).innerText = 'mm');
+                const b = { diameter: [2, 500, 1], thickness: [0.5, 100, 0.5], chamfer: [0, 20, 0.1], ratio: [2, 500, 1] };
+                Object.keys(b).forEach(id => { const s = document.getElementById(id); s.min = b[id][0]; s.max = b[id][1]; s.step = b[id][2]; });
+                syncInputs('diameter', diameter, 'mm');
+                syncInputs('baseSize', baseSize, 'mm');
+                syncInputs('thickness', thickness, 'mm');
+                syncInputs('chamfer', chamfer, 'mm');
+            }
+        });
+
+        document.getElementById('unit-in').addEventListener('click', () => {
+            if (currentUnit === 'mm') {
+                currentUnit = 'in';
+                document.getElementById('unit-in').classList.add('active');
+                document.getElementById('unit-mm').classList.remove('active');
+                ['d', 't', 'c', 'b'].forEach(u => document.getElementById('unit-label-' + u).innerText = 'in');
+                const b = { diameter: [0.1, 20, 0.05], thickness: [0.02, 4, 0.01], chamfer: [0, 1, 0.01], ratio: [0.1, 20, 0.05] };
+                Object.keys(b).forEach(id => { const s = document.getElementById(id); s.min = b[id][0]; s.max = b[id][1]; s.step = b[id][2]; });
+                syncInputs('diameter', diameter / 25.4, 'in');
+                syncInputs('baseSize', baseSize / 25.4, 'in');
+                syncInputs('thickness', thickness / 25.4, 'in');
+                syncInputs('chamfer', chamfer / 25.4, 'in');
+            }
+        });
+
+        ['viz-solid', 'viz-both', 'viz-tess'].forEach(id => {
+            document.getElementById(id).addEventListener('click', () => {
+                vizMode = id.split('-')[1];
+                ['viz-solid', 'viz-both', 'viz-tess'].forEach(bid => document.getElementById(bid).classList.toggle('active', bid === id));
+                updateGeometry();
+            });
+        });
+
+        document.getElementById('color-sphere').addEventListener('input', (e) => sphereMat.color.set(e.target.value));
+        document.getElementById('color-base').addEventListener('input', (e) => solidMaterial.color.set(e.target.value));
+
+        async function download3MF() {
+            const zip = new JSZip();
+            const ct = `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>`;
+            const rl = `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Target="/3D/model.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>`;
+            let m; scene.traverse(c => { if (c.isMesh && c !== ground && c !== sphereRef) m = c; });
+            const p = m.geometry.attributes.position.array;
+            const idx = m.geometry.index.array;
+            let v = ""; for (let i = 0; i < p.length; i += 3) v += `<vertex x="${p[i].toFixed(4)}" y="${p[i + 2].toFixed(4)}" z="${p[i + 1].toFixed(4)}" />`;
+            let t = ""; for (let i = 0; i < idx.length; i += 3) t += `<triangle v1="${idx[i]}" v2="${idx[i + 1]}" v3="${idx[i + 2]}" />`;
+            const mx = `<?xml version="1.0" encoding="UTF-8"?><model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02"><resources><object id="1" type="model"><mesh><vertices>${v}</vertices><triangles>${t}</triangles></mesh></object></resources><build><item objectid="1" /></build></model>`;
+            zip.file("[Content_Types].xml", ct);
+            zip.folder("_rels").file(".rels", rl);
+            zip.folder("3D").file("model.model", mx);
+            const blob = await zip.generateAsync({ type: "blob" });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `sphere_stand_${diameter.toFixed(1)}mm.3mf`; a.click();
+        }
+        document.getElementById('download-3mf').addEventListener('click', download3MF);
+
+        function downloadSTL() {
+            let m; scene.traverse(c => { if (c.isMesh && c !== ground && c !== sphereRef) m = c; });
+            const p = m.geometry.attributes.position.array;
+            const idx = m.geometry.index.array;
+            const tf = idx.length / 3;
+            const bu = new ArrayBuffer(84 + tf * 50);
+            const vi = new DataView(bu);
+            vi.setUint32(80, tf, true);
+            let o = 84;
+            for (let i = 0; i < idx.length; i += 3) {
+                [0, 0, 0].forEach(n => { vi.setFloat32(o, n, true); o += 4; });
+                for (let j = 0; j < 3; j++) {
+                    const k = idx[i + j] * 3;
+                    vi.setFloat32(o, p[k], true); o += 4;
+                    vi.setFloat32(o, p[k + 2], true); o += 4;
+                    vi.setFloat32(o, p[k + 1], true); o += 4;
+                }
+                vi.setUint16(o, 0, true); o += 2;
+            }
+            const blob = new Blob([bu], { type: 'application/octet-stream' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `sphere_stand_${diameter.toFixed(1)}mm.stl`; a.click();
+        }
+        document.getElementById('download-btn').addEventListener('click', downloadSTL);
+
+        function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
+        animate();
+
+        window.addEventListener('resize', () => {
+            const w = window.innerWidth - 360;
+            camera.aspect = w / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, window.innerHeight);
+        });
+
+        updateGeometry();
+    </script>
+</body>
+
+</html>
