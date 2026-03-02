@@ -337,12 +337,36 @@
             position: absolute;
             bottom: 2rem;
             right: 2rem;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.75rem;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
             color: white;
             pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .badge-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .badge-key {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: 600;
+            min-width: 45px;
+            text-align: center;
+            font-size: 0.65rem;
         }
     </style>
 </head>
@@ -487,7 +511,20 @@
     </aside>
 
     <main id="viewport"></main>
-    <div class="badge">Live 3D Preview (Three.js)</div>
+    <div class="badge">
+        <div class="badge-row">
+            <span class="badge-key">LMB</span>
+            <span>Rotate View</span>
+        </div>
+        <div class="badge-row">
+            <span class="badge-key">RMB</span>
+            <span>Pan Scene</span>
+        </div>
+        <div class="badge-row">
+            <span class="badge-key">Scroll</span>
+            <span>Zoom In/Out</span>
+        </div>
+    </div>
 
     <script type="module">
         import * as THREE from 'three';
