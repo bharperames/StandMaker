@@ -462,6 +462,47 @@
             </div>
 
             <div>
+                <div class="section-title">Materials & Finish</div>
+                <div class="input-group">
+                    <div class="setting-row">
+                        <span class="setting-label">Sphere Style</span>
+                        <div class="button-group">
+                            <button class="unit-btn active" id="sphere-design">Design</button>
+                            <button class="unit-btn" id="sphere-photo">Photo</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label">Base Style</span>
+                        <div class="button-group">
+                            <button class="unit-btn active" id="base-solid">Solid</button>
+                            <button class="unit-btn" id="base-plaster">Plaster</button>
+                        </div>
+                    </div>
+                    <div id="texture-controls"
+                        style="display: none; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <div class="input-group">
+                            <label>Layer Scale</label>
+                            <div class="control-row">
+                                <input type="range" id="tex-scale" min="2" max="20" value="6" step="1">
+                                <div class="input-wrapper">
+                                    <input type="number" id="num-tex-scale" class="num-input" value="6" step="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Bump Intensity</label>
+                            <div class="control-row">
+                                <input type="range" id="tex-bump" min="0.05" max="2.0" value="0.5" step="0.05">
+                                <div class="input-wrapper">
+                                    <input type="number" id="num-tex-bump" class="num-input" value="0.5" step="0.05">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
                 <div class="section-title">Generation Details</div>
                 <div class="input-group">
                     <label>
@@ -539,6 +580,10 @@
         let radialSubdivs = 8;
         let currentUnit = 'mm';
         let vizMode = 'both';
+        let sphereStyle = 'design';
+        let baseStyle = 'solid';
+        let textureScale = 6;
+        let bumpIntensity = 0.5;
 
         // --- Three.js Setup ---
         const scene = new THREE.Scene();
@@ -582,22 +627,66 @@
         ground.position.y = -0.1;
         scene.add(ground);
 
+        // --- Plaster Texture Generator ---
+        function generatePlasterTexture(size = 1024, layerThickness = 6) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            const imgData = ctx.createImageData(size, size);
+            const data = imgData.data;
+
+            for (let y = 0; y < size; y++) {
+                const layerWave = Math.sin(y * (2 * Math.PI / layerThickness)) * 30;
+                for (let x = 0; x < size; x++) {
+                    // Plaster Noise (grit)
+                    const noise = (Math.random() - 0.5) * 40;
+                    // Combined with layer lines
+                    let val = 128 + (noise * 0.55) + (layerWave * 0.45);
+                    val = Math.max(0, Math.min(255, val));
+
+                    const idx = (y * size + x) * 4;
+                    data[idx] = data[idx + 1] = data[idx + 2] = val;
+                    data[idx + 3] = 255;
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+            return tex;
+        }
+
+        const plasterBumpMap = generatePlasterTexture(1024, textureScale);
+
         // Materials
-        const sphereMat = new THREE.MeshPhongMaterial({
+        const sphereMat = new THREE.MeshStandardMaterial({
             color: 0xfacc15,
             wireframe: true,
             transparent: true,
-            opacity: 0.6, // More opaque for vibrancy
+            opacity: 0.6,
             emissive: 0xfacc15,
-            emissiveIntensity: 0.2 // Subtle glow to prevent muting
+            emissiveIntensity: 0.2,
+            roughness: 0.2,
+            metalness: 0.3
         });
-        const solidMaterial = new THREE.MeshPhongMaterial({ color: 0xaaaaaa, shininess: 100 });
+
+        const solidMaterial = new THREE.MeshStandardMaterial({
+            color: 0xaaaaaa,
+            roughness: 1.0,
+            metalness: 0.0,
+            bumpMap: null,
+            bumpScale: bumpIntensity
+        });
+
+        const opalTexture = new THREE.TextureLoader().load('texture_opal.png');
+        opalTexture.colorSpace = THREE.SRGBColorSpace;
+
         const wireMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
         const overlayWireMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ff00, // Unify to bright green
+            color: 0x00ff00,
             wireframe: true,
             transparent: true,
-            opacity: 0.4 // Balanced visibility on solid
+            opacity: 0.4
         });
 
         const sphereRef = new THREE.Mesh(new THREE.SphereGeometry(25, 64, 32), sphereMat);
@@ -661,6 +750,9 @@
             geometry.computeVertexNormals();
 
             if (vizMode === 'solid' || vizMode === 'both') {
+                solidMaterial.bumpMap = (baseStyle === 'plaster') ? plasterBumpMap : null;
+                solidMaterial.bumpScale = bumpIntensity;
+                solidMaterial.needsUpdate = true;
                 standMesh = new THREE.Mesh(geometry, solidMaterial);
                 scene.add(standMesh);
             }
@@ -668,6 +760,24 @@
                 wireOverlay = new THREE.Mesh(geometry, vizMode === 'tess' ? wireMaterial : overlayWireMaterial);
                 scene.add(wireOverlay);
             }
+
+            // Sphere Style Update
+            if (sphereStyle === 'photo') {
+                sphereMat.map = opalTexture;
+                sphereMat.transparent = false;
+                sphereMat.opacity = 1.0;
+                sphereMat.wireframe = false;
+                sphereMat.roughness = 0.1;
+                sphereMat.metalness = 0.1;
+            } else {
+                sphereMat.map = null;
+                sphereMat.transparent = true;
+                sphereMat.opacity = 0.6;
+                sphereMat.wireframe = true;
+                sphereMat.roughness = 0.2;
+                sphereMat.metalness = 0.3;
+            }
+            sphereMat.needsUpdate = true;
 
             // Quality/Stability
             const contactAngle = Math.asin(Math.min(0.99, baseSize / R_sphere)) * (180 / Math.PI);
@@ -767,9 +877,72 @@
 
         document.getElementById('color-sphere').addEventListener('input', (e) => {
             sphereMat.color.set(e.target.value);
-            sphereMat.emissive.set(e.target.value); // Sync emissive for vibrancy
+            sphereMat.emissive.set(e.target.value);
         });
         document.getElementById('color-base').addEventListener('input', (e) => solidMaterial.color.set(e.target.value));
+
+        // Material Toggles
+        document.getElementById('sphere-design').addEventListener('click', () => {
+            sphereStyle = 'design';
+            document.getElementById('sphere-design').classList.add('active');
+            document.getElementById('sphere-photo').classList.remove('active');
+            updateGeometry();
+        });
+        document.getElementById('sphere-photo').addEventListener('click', () => {
+            sphereStyle = 'photo';
+            document.getElementById('sphere-photo').classList.add('active');
+            document.getElementById('sphere-design').classList.remove('active');
+            updateGeometry();
+        });
+        document.getElementById('base-solid').addEventListener('click', () => {
+            baseStyle = 'solid';
+            document.getElementById('base-solid').classList.add('active');
+            document.getElementById('base-plaster').classList.remove('active');
+            document.getElementById('texture-controls').style.display = 'none';
+            updateGeometry();
+        });
+        document.getElementById('base-plaster').addEventListener('click', () => {
+            baseStyle = 'plaster';
+            document.getElementById('base-plaster').classList.add('active');
+            document.getElementById('base-solid').classList.remove('active');
+            document.getElementById('texture-controls').style.display = 'flex';
+            updateGeometry();
+        });
+
+        // Texture Sliders
+        const ts = document.getElementById('tex-scale');
+        const nts = document.getElementById('num-tex-scale');
+        const tb = document.getElementById('tex-bump');
+        const ntb = document.getElementById('num-tex-bump');
+
+        function updateTexture() {
+            plasterBumpMap.dispose();
+            const newTex = generatePlasterTexture(1024, textureScale);
+            plasterBumpMap.image = newTex.image;
+            plasterBumpMap.needsUpdate = true;
+            updateGeometry();
+        }
+
+        ts.addEventListener('input', (e) => {
+            textureScale = parseFloat(e.target.value);
+            nts.value = textureScale;
+            updateTexture();
+        });
+        nts.addEventListener('change', (e) => {
+            textureScale = parseFloat(e.target.value);
+            ts.value = textureScale;
+            updateTexture();
+        });
+        tb.addEventListener('input', (e) => {
+            bumpIntensity = parseFloat(e.target.value);
+            ntb.value = bumpIntensity;
+            updateGeometry();
+        });
+        ntb.addEventListener('change', (e) => {
+            bumpIntensity = parseFloat(e.target.value);
+            tb.value = bumpIntensity;
+            updateGeometry();
+        });
 
         async function download3MF() {
             const zip = new JSZip();
