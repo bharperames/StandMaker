@@ -511,17 +511,26 @@
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth - 360, window.innerHeight);
+        renderer.outputColorSpace = THREE.SRGBColorSpace; // Enable vibrant color space
         document.getElementById('viewport').appendChild(renderer.domElement);
 
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
 
         // Lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.4); // Natural fill
+        scene.add(hemiLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2); // Brighter key light
         dirLight.position.set(100, 200, 100);
         scene.add(dirLight);
+
+        const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4); // Subtle fill from behind
+        dirLight2.position.set(-100, -50, -100);
+        scene.add(dirLight2);
 
         // Environment (Grid)
         const gridHelper = new THREE.GridHelper(1000, 100, 0x4444ff, 0x222222);
@@ -537,10 +546,22 @@
         scene.add(ground);
 
         // Materials
-        const sphereMat = new THREE.MeshPhongMaterial({ color: 0xfacc15, wireframe: true, transparent: true, opacity: 0.3 });
+        const sphereMat = new THREE.MeshPhongMaterial({
+            color: 0xfacc15,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.6, // More opaque for vibrancy
+            emissive: 0xfacc15,
+            emissiveIntensity: 0.2 // Subtle glow to prevent muting
+        });
         const solidMaterial = new THREE.MeshPhongMaterial({ color: 0xaaaaaa, shininess: 100 });
         const wireMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
-        const overlayWireMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true, opacity: 0.2 });
+        const overlayWireMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ff00, // Unify to bright green
+            wireframe: true,
+            transparent: true,
+            opacity: 0.4 // Balanced visibility on solid
+        });
 
         const sphereRef = new THREE.Mesh(new THREE.SphereGeometry(25, 64, 32), sphereMat);
         scene.add(sphereRef);
@@ -707,7 +728,10 @@
             });
         });
 
-        document.getElementById('color-sphere').addEventListener('input', (e) => sphereMat.color.set(e.target.value));
+        document.getElementById('color-sphere').addEventListener('input', (e) => {
+            sphereMat.color.set(e.target.value);
+            sphereMat.emissive.set(e.target.value); // Sync emissive for vibrancy
+        });
         document.getElementById('color-base').addEventListener('input', (e) => solidMaterial.color.set(e.target.value));
 
         async function download3MF() {
