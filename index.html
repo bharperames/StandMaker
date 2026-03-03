@@ -471,6 +471,12 @@
                             <button class="unit-btn" id="sphere-photo">Photo</button>
                         </div>
                     </div>
+                    <div id="photo-controls"
+                        style="display: none; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                        <label style="font-size: 0.65rem; opacity: 0.7;">Load Opal Texture</label>
+                        <input type="file" id="tex-loader" accept="image/*"
+                            style="font-size: 0.6rem; color: var(--text-dim);">
+                    </div>
                     <div class="setting-row">
                         <span class="setting-label">Base Style</span>
                         <div class="button-group">
@@ -678,8 +684,8 @@
             bumpScale: bumpIntensity
         });
 
-        const opalTexture = new THREE.TextureLoader().load('texture_opal.png');
-        opalTexture.colorSpace = THREE.SRGBColorSpace;
+        let opalTexture = null;
+        const texLoader = new THREE.TextureLoader();
 
         const wireMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
         const overlayWireMaterial = new THREE.MeshBasicMaterial({
@@ -886,13 +892,29 @@
             sphereStyle = 'design';
             document.getElementById('sphere-design').classList.add('active');
             document.getElementById('sphere-photo').classList.remove('active');
+            document.getElementById('photo-controls').style.display = 'none';
             updateGeometry();
         });
         document.getElementById('sphere-photo').addEventListener('click', () => {
             sphereStyle = 'photo';
             document.getElementById('sphere-photo').classList.add('active');
             document.getElementById('sphere-design').classList.remove('active');
+            document.getElementById('photo-controls').style.display = 'flex';
             updateGeometry();
+        });
+
+        document.getElementById('tex-loader').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                texLoader.load(url, (texture) => {
+                    texture.colorSpace = THREE.SRGBColorSpace;
+                    opalTexture = texture;
+                    // Auto-enable photo mode if texture selected
+                    sphereStyle = 'photo';
+                    updateGeometry();
+                });
+            }
         });
         document.getElementById('base-solid').addEventListener('click', () => {
             baseStyle = 'solid';
