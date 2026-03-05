@@ -53,7 +53,7 @@ The application utilizes a fully reconstructed `CSS2DRenderer` pipeline to overl
 ## Application Visuals
 
 ### Selectable Textures
-![Rose Quartz Verify](file:///Users/brettharper/.gemini/antigravity/brain/535efc63-6a2d-4582-b2e6-339be8ae2bfc/verify_new_textures_1772657673355.webp)
+![Rose Quartz Verify](assets/verify_new_textures.webp)
 
 ### 3D Rendering & Swatches
-![Tigers Eye Solid Render](file:///Users/brettharper/.gemini/antigravity/brain/535efc63-6a2d-4582-b2e6-339be8ae2bfc/tigers_eye_solid_render_1772657781504.png)
+![Tigers Eye Solid Render](assets/tigers_eye_solid_render.png)
