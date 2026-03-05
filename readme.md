@@ -31,3 +31,29 @@ This document outlines the minimum and maximum physical limits for the configura
 *   **Max**: 10.0 mm (Hard UI Limit)
 *   **Dependencies**: As detailed above, it is physically constrained by the **Wall Thickness** at all times. It is additionally mathematically constrained by the vertical Y-axis height of the outer wall dropping at that specific radial distance (`safeChamfer`).
     *   **Side Effect**: If you try to drag the Chamfer slider up to `5mm`, but your Wall Thickness is only `3mm`, the Javascript constraint engine will instantly intercept the input, overriding the UI limit and freezing the slider value at exactly `2.9mm`. This is a critical safety check to prevent the geometry from physically turning inside out, crossing over its own vertices, and generating non-printable 3D artifacts.
+
+## Feature Overview
+
+### Built-In Textures
+The generator includes several high-quality built-in textures for visualizing your sphere setup:
+- **Sodalite**
+- **Earth Map**
+- **Labradorite**
+- **Rose Quartz**
+- **Tigers Eye**
+
+These textures are injected directly via Base64 strings to bypass local canvas CORS (`SecurityError: Tainted canvases may not be loaded`) issues. 
+
+### Custom Textures
+You can dynamically load your own custom textures using the **"Photo"** button option, mapping standard images directly onto the 3D sphere object.
+
+### Dimensions & Overlays
+The application utilizes a fully reconstructed `CSS2DRenderer` pipeline to overlay HTML-based **3D Dimensions** directly on top of the physical scene to help contextualize the scale during export.
+
+## Application Visuals
+
+### Selectable Textures
+![Rose Quartz Verify](file:///Users/brettharper/.gemini/antigravity/brain/535efc63-6a2d-4582-b2e6-339be8ae2bfc/verify_new_textures_1772657673355.webp)
+
+### 3D Rendering & Swatches
+![Tigers Eye Solid Render](file:///Users/brettharper/.gemini/antigravity/brain/535efc63-6a2d-4582-b2e6-339be8ae2bfc/tigers_eye_solid_render_1772657781504.png)
