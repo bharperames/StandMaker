@@ -57,3 +57,9 @@ The application utilizes a fully reconstructed `CSS2DRenderer` pipeline to overl
 
 ### 3D Rendering & Swatches
 ![Tigers Eye Solid Render](assets/tigers_eye_solid_render.png)
+
+### Dimensional Overlays & Base Calculation
+![Base Measurements & Optimization](assets/base_measurements.png)
+
+### Slicer-Ready 3MF Export
+![3MF Export Capability](assets/export_3mf.png)
