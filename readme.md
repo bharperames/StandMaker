@@ -53,7 +53,7 @@ The application utilizes a fully reconstructed `CSS2DRenderer` pipeline to overl
 ## Application Visuals
 
 ### Selectable Textures
-![Rose Quartz Verify](assets/verify_new_textures.webp)
+![Rose Quartz Verify](assets/rose_quartz_render.png)
 
 ### 3D Rendering & Swatches
 ![Tigers Eye Solid Render](assets/tigers_eye_solid_render.png)
