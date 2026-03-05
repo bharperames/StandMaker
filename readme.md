@@ -34,32 +34,30 @@ This document outlines the minimum and maximum physical limits for the configura
 
 ## Feature Overview
 
-### Built-In Textures
-The generator includes several high-quality built-in textures for visualizing your sphere setup:
-- **Sodalite**
-- **Earth Map**
-- **Labradorite**
-- **Rose Quartz**
-- **Tigers Eye**
+### 1. Parametric Base Generation
+The core purpose of this tool is to design fully customizable, 3D printable display stands for spherical objects. Every dimension—from the overall footprint to the inner wall chamfers—can be dynamically adjusted to create the perfect custom fit for your sphere.
 
-These textures are injected directly via Base64 strings to bypass local canvas CORS (`SecurityError: Tainted canvases may not be loaded`) issues. 
+### 2. Slicer-Ready 3MF Export
+Once you have designed your perfect stand parameters, the application can instantly compile your bespoke geometry and trigger a download for a clean, manifold 3MF file. This file is immediately ready to be dropped into Prusaslicer, Cura, or Bambu Studio for 3D printing.
 
-### Custom Textures
-You can dynamically load your own custom textures using the **"Photo"** button option, mapping standard images directly onto the 3D sphere object.
+### 3. Dimensional Overlays
+To help easily visualize the physical scale of your custom stand before exporting, you can toggle dynamic 3D dimension lines directly on top of the physical scene. 
 
-### Dimensions & Overlays
-The application utilizes a fully reconstructed `CSS2DRenderer` pipeline to overlay HTML-based **3D Dimensions** directly on top of the physical scene to help contextualize the scale during export.
+### 4. Built-In Context Textures
+To help visualize what your final display might look like, the generator includes several high-quality built-in stone textures (like Labradorite and Tigers Eye) that wrap around the digital reference sphere. You can also dynamically load your own custom photos to preview unique setups.
+
+---
 
 ## Application Visuals
-
-### Selectable Textures
-![Rose Quartz Verify](assets/rose_quartz_render.png)
-
-### 3D Rendering & Swatches
-![Tigers Eye Solid Render](assets/tigers_eye_solid_render.png)
 
 ### Dimensional Overlays & Base Calculation
 ![Base Measurements & Optimization](assets/base_measurements.png)
 
 ### Slicer-Ready 3MF Export
 ![3MF Export Capability](assets/export_3mf.png)
+
+### Selectable 3D Visual Context
+![Rose Quartz Verify](assets/rose_quartz_render.png)
+
+### Real-Time 3D Rendering & Swatches
+![Tigers Eye Solid Render](assets/tigers_eye_solid_render.png)
