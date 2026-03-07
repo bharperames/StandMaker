@@ -1162,11 +1162,12 @@
             const maxBase = calculateMaxBase(diameter, thickness);
 
             // Dynamically scale the UI slider track to match maximum physical geometry constraints
-            document.getElementById('ratio').max = maxBase.toFixed(1);
+            const uiScaleFactor = currentUnit === 'mm' ? 1 : 1 / 25.4;
+            document.getElementById('ratio').max = (maxBase * uiScaleFactor).toFixed(1);
 
             if (baseSize > maxBase) {
                 baseSize = maxBase;
-                syncInputs('baseSize', baseSize, null, false);
+                syncInputs('baseSize', baseSize, 'mm', false);
             }
 
             const R_inner = baseSize - (thickness / 2);
@@ -1180,11 +1181,11 @@
             let absoluteMaxChamfer = calculateAbsoluteMaxChamfer(diameter, baseSize, thickness, seatingHeight);
 
             // Dynamically scale the UI slider track to match true stable maximums
-            document.getElementById('chamfer').max = absoluteMaxChamfer.toFixed(1);
+            document.getElementById('chamfer').max = (absoluteMaxChamfer * uiScaleFactor).toFixed(1);
 
             if (chamfer > absoluteMaxChamfer) {
                 chamfer = absoluteMaxChamfer;
-                syncInputs('chamfer', chamfer, null, false);
+                syncInputs('chamfer', chamfer, 'mm', false);
             }
 
             // Recompute the active parameters based on final safe chamfer
@@ -1610,8 +1611,11 @@
             else if (id === 'seatingHeight') seatingHeight = mmValue;
             else if (id === 'segments') segments = Math.round(val);
 
-            range.value = val;
-            num.value = val.toFixed(id === 'segments' ? 0 : (isMM ? 1 : 2));
+            // Display Value needs to align to the current UI unit (not forceUnit)
+            const displayVal = (currentUnit === 'mm' || id === 'segments') ? mmValue : mmValue / 25.4;
+            
+            range.value = displayVal;
+            num.value = displayVal.toFixed(id === 'segments' ? 0 : (currentUnit === 'mm' ? 1 : 2));
             if (triggerUpdate && typeof updateGeometry === 'function') {
                 updateGeometry();
             }
