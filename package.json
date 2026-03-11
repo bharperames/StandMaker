@@ -12,5 +12,9 @@
   "license": "ISC",
   "devDependencies": {
     "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "fflate": "^0.8.2",
+    "jszip": "^3.10.1"
   }
 }

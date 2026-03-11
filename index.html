@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPCEtLSBHbG93aW5nIHdpcmVmcmFtZSBzcGhlcmUgLS0+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIyNCIgcj0iMjIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzEwYjk4MSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgPGVsbGlwc2UgY3g9IjMyIiBjeT0iMjQiIHJ4PSIyMiIgcnk9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzEwYjk4MSIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPGVsbGlwc2UgY3g9IjMyIiBjeT0iMjQiIHJ4PSI4IiByeT0iMjIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzEwYjk4MSIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgCiAgPCEtLSBTb2xpZCBjb250cmFzdGluZyBiYXNlIC0tPgogIDxwYXRoIGQ9Ik0gMTIgNDQgTCA1MiA0NCBMIDU4IDYwIEwgNiA2MCBaIiBmaWxsPSJub25lIiBzdHJva2U9IiM5NGEzYjgiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogIDxwYXRoIGQ9Ik0gMTIgNDQgTCA1MiA0NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/fflate@0.8.2/umd/index.js"></script>
     <script type="importmap">
         {
             "imports": {
@@ -149,6 +149,7 @@
             margin-bottom: 0.5rem;
             background: linear-gradient(to right, var(--primary), var(--accent));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -507,16 +508,23 @@
             <div>
                 <div class="input-group">
                     <div class="setting-row">
-                        <div class="tooltip-container"><span class="setting-label">Units</span><div class="help-btn">?</div>
-<div class="tooltip"><p>Toggles all measurement values displayed in the UI.</p></div></div>
+                        <div class="tooltip-container"><span class="setting-label">Units</span>
+                            <div class="help-btn">?</div>
+                            <div class="tooltip">
+                                <p>Toggles all measurement values displayed in the UI.</p>
+                            </div>
+                        </div>
                         <div class="button-group">
                             <button class="unit-btn active" id="unit-mm">MM</button>
                             <button class="unit-btn" id="unit-in">IN</button>
                         </div>
                     </div>
                     <div class="setting-row">
-                        <div class="tooltip-container"><span class="setting-label">Base Style</span><div class="help-btn">?</div>
-<div class="tooltip"><p>Changes how the stand geometry is rendered (Solid, Wireframe, or Both).</p></div>
+                        <div class="tooltip-container"><span class="setting-label">Base Style</span>
+                            <div class="help-btn">?</div>
+                            <div class="tooltip">
+                                <p>Changes how the stand geometry is rendered (Solid, Wireframe, or Both).</p>
+                            </div>
                         </div>
                         <div class="button-group">
                             <button class="unit-btn" id="viz-solid">Solid</button>
@@ -529,8 +537,11 @@
 
             <div class="input-group">
                 <div class="setting-row">
-                    <div class="tooltip-container"><span class="setting-label">Sphere Style</span><div class="help-btn">?</div>
-<div class="tooltip"><p>Toggles the 3D sphere visual (Wireframe, Solid, Hidden).</p></div>
+                    <div class="tooltip-container"><span class="setting-label">Sphere Style</span>
+                        <div class="help-btn">?</div>
+                        <div class="tooltip">
+                            <p>Toggles the 3D sphere visual (Wireframe, Solid, Hidden).</p>
+                        </div>
                     </div>
                     <div class="button-group">
                         <button class="unit-btn" id="sphere-photo">Solid</button>
@@ -547,8 +558,12 @@
                     style="display: none; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem; padding: 0.75rem; background: rgba(0, 0, 0, 0.1); border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.08); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
 
                     <div class="setting-row">
-                        <div class="tooltip-container"><span class="setting-label">Base Color</span><div class="help-btn">?</div>
-<div class="tooltip"><p>Changes the material color of the primary stand geometry.</p></div></div>
+                        <div class="tooltip-container"><span class="setting-label">Base Color</span>
+                            <div class="help-btn">?</div>
+                            <div class="tooltip">
+                                <p>Changes the material color of the primary stand geometry.</p>
+                            </div>
+                        </div>
                         <div
                             style="display: flex; gap: 0.15rem; align-items: center; justify-content: flex-end; flex-wrap: nowrap;">
                             <div class="color-preset" style="background: #111111;" title="Jet Black"
@@ -570,14 +585,25 @@
 
                     <div class="setting-row">
                         <div class="tooltip-container"><span class="setting-label">Sphere
-                                Tint</span><div class="help-btn">?</div>
-<div class="tooltip"><p>Tints the sphere's 3D render (Photo mode only).</p></div></div>
+                                Tint</span>
+                            <div class="help-btn">?</div>
+                            <div class="tooltip">
+                                <p>Tints the sphere's 3D render (Photo mode only).</p>
+                            </div>
+                        </div>
                         <input type="color" id="color-sphere" class="color-picker" value="#ffffff">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem;">
                         <div class="setting-row" style="margin-bottom: 0.25rem;">
-                            <div class="tooltip-container"><span class="setting-label">Texture Style</span><div class="help-btn">?</div><div class="tooltip"><p>Applies a predefined pattern/texture to the base.</p></div></div>
-                            <div id="clear-texture-btn" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: var(--bg-light); border: 1px dashed rgba(0,0,0,0.3); color: var(--text-dim); font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 4px;" title="Remove Texture">✕</div>
+                            <div class="tooltip-container"><span class="setting-label">Texture Style</span>
+                                <div class="help-btn">?</div>
+                                <div class="tooltip">
+                                    <p>Applies a predefined pattern/texture to the base.</p>
+                                </div>
+                            </div>
+                            <div id="clear-texture-btn"
+                                style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: var(--bg-light); border: 1px dashed rgba(0,0,0,0.3); color: var(--text-dim); font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 4px;"
+                                title="Remove Texture">✕</div>
                         </div>
                         <div class="tex-swatch-container" id="texture-swatch-container">
                             <!-- Swatches generated dynamically by JS -->
@@ -620,8 +646,11 @@
                 </div>
 
                 <div class="input-group">
-                    <div class="tooltip-container"><label>Sphere Diameter</label><div class="help-btn">?</div>
-<div class="tooltip"><p>The outer diameter of the sphere you intend to display (e.g., 50mm).</p></div>
+                    <div class="tooltip-container"><label>Sphere Diameter</label>
+                        <div class="help-btn">?</div>
+                        <div class="tooltip">
+                            <p>The outer diameter of the sphere you intend to display (e.g., 50mm).</p>
+                        </div>
                     </div>
                     <div class="control-row">
                         <input type="range" id="diameter" min="5" max="500" value="50" step="1">
@@ -633,8 +662,12 @@
                 </div>
 
                 <div class="input-group" style="margin-top: 0.25rem;">
-                    <div class="tooltip-container"><label>Sphere Height</label><div class="help-btn">?</div>
-<div class="tooltip"><p>How high the sphere is from the base of the stand (i.e. how high in the air it will be when supported).</p></div>
+                    <div class="tooltip-container"><label>Sphere Height</label>
+                        <div class="help-btn">?</div>
+                        <div class="tooltip">
+                            <p>How high the sphere is from the base of the stand (i.e. how high in the air it will be
+                                when supported).</p>
+                        </div>
                     </div>
                     <div class="control-row">
                         <input type="range" id="clearance" min="2.0" max="100" value="2.0" step="0.1">
@@ -646,8 +679,11 @@
                 </div>
 
                 <div class="input-group" style="margin-top: 0.25rem;">
-                    <div class="tooltip-container"><label>Base Size</label><div class="help-btn">?</div>
-<div class="tooltip"><p>The horizontal width/diameter of the stand base.</p></div>
+                    <div class="tooltip-container"><label>Base Size</label>
+                        <div class="help-btn">?</div>
+                        <div class="tooltip">
+                            <p>The horizontal width/diameter of the stand base.</p>
+                        </div>
                     </div>
                     <div class="control-row">
                         <input type="range" id="ratio" min="5" max="30" value="18" step="1">
@@ -659,8 +695,12 @@
                 </div>
 
                 <div class="input-group" style="margin-top: 1rem; position: relative;">
-                    <div class="tooltip-container"><label>Wall Thickness</label><div class="help-btn">?</div>
-<div class="tooltip"><p>The vertical height / thickness of the stand wall.</p></div></div>
+                    <div class="tooltip-container"><label>Wall Thickness</label>
+                        <div class="help-btn">?</div>
+                        <div class="tooltip">
+                            <p>The vertical height / thickness of the stand wall.</p>
+                        </div>
+                    </div>
                     <div class="control-row">
                         <input type="range" id="thickness" min="0.5" max="50" value="5" step="0.5">
                         <div class="input-wrapper">
@@ -672,8 +712,11 @@
                 </div>
 
                 <div class="input-group" style="margin-top: 0.25rem;">
-                    <div class="tooltip-container"><label>Top Edge Chamfer</label><div class="help-btn">?</div>
-<div class="tooltip"><p>A bevel applied to the top inner edge to prevent a sharp, fragile lip.</p></div>
+                    <div class="tooltip-container"><label>Top Edge Chamfer</label>
+                        <div class="help-btn">?</div>
+                        <div class="tooltip">
+                            <p>A bevel applied to the top inner edge to prevent a sharp, fragile lip.</p>
+                        </div>
                     </div>
                     <div class="control-row">
                         <input type="range" id="chamfer" min="0" max="10" value="1.5" step="0.1">
@@ -686,8 +729,8 @@
             </div>
 
             <div>
-                <div class="input-group"
-                    style="margin-top: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: center; align-items: center;">
+                <div
+                    style="position: relative; margin-top: 1.5rem; margin-bottom: 0.75rem; display: flex; flex-direction: row; justify-content: center; align-items: center;">
                     <button id="auto-optimize" class="primary"
                         style="padding: 0.5rem 1rem; font-weight: 500; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; border-radius: 6px; border: none; cursor: pointer; color: white; transition: background-color 0.2s;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -698,46 +741,25 @@
                         </svg>
                         Auto-Optimize Geometry
                     </button>
-                    <div class="tooltip-container" style="margin-left: 0.5rem;">
+                    <div class="tooltip-container" style="position: static; margin-left: 0.5rem;">
                         <div class="help-btn">?</div>
-<div class="tooltip"><p>Instantly calculates optimal Sphere Height, Base Size, Wall Thickness, and Top Edge Chamfer based on your Sphere Diameter.</p></div>
+                        <div class="tooltip">
+                            <p>Sets optimal geometry dimensions for the current sphere diameter.</p>
+                        </div>
                     </div>
-
+                </div>
+                <div style="margin-bottom: 1.5rem; display: flex; justify-content: center;">
                     <button id="reset-config" class="primary"
-                        style="margin-left: auto; padding: 0.5rem 1rem; font-weight: 500; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; border-radius: 6px; border: none; cursor: pointer; background-color: #ef4444; color: white; transition: background-color 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"
+                        style="padding: 0.35rem 0.6rem; font-size: 0.75rem; font-weight: 500; display: flex; align-items: center; gap: 0.35rem; border-radius: 6px; border: none; cursor: pointer; background-color: #ef4444; color: white; transition: background-color 0.2s;"
                         onmouseover="this.style.backgroundColor='#dc2626'"
                         onmouseout="this.style.backgroundColor='#ef4444'">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
                             <path d="M3 3v5h5"></path>
                         </svg>
-                        Reset
+                        Reset All
                     </button>
-                </div>
-
-                <div style="border-top: 1px solid rgba(0, 0, 0, 0.1); padding-top: 0.75rem; margin-top: 0.25rem;">
-                    <div class="input-group">
-                        <label>
-                            Tessellation
-                            <span class="optimize-link" id="auto-density">Smooth</span>
-                        </label>
-                        <div class="control-row">
-                            <input type="range" id="segments" min="8" max="256" value="72" step="4">
-                            <div class="input-wrapper">
-                                <input type="number" id="num-segments" class="num-input" value="72" step="4">
-                                <span class="unit-tag">seg</span>
-                            </div>
-                        </div>
-                        <div
-                            style="display: flex; justify-content: space-between; margin-top: 0.5rem; background: rgba(0,0,0,0.03); border-radius: 6px; border: 1px solid rgba(0,0,0,0.05);">
-                            <span id="arc-length-label"
-                                style="font-size: 0.75rem; font-weight: 600; color: var(--text-main);">Sphere Contact
-                                Arc Length: 0.00mm</span>
-                            <span id="quality-label"
-                                style="font-size: 0.75rem; font-weight: 700; color: var(--text-dim);">±0.000mm</span>
-                        </div>
-                    </div>
                 </div>
 
                 <div id="main-help-btn" class="help-btn">?</div>
@@ -750,15 +772,76 @@
                         to
                         print.</p>
                     <p style="margin-bottom: 0;"><strong>Format: Why 3MF?</strong><br>
-                        3MF is the modern standard. Unlike legacy STL, 3MF contains <strong>strict unit
+                        3MF is the modern standard. Unlike STL, 3MF contains <strong>strict unit
                             definitions</strong> and clean XML structure, preventing mesh errors.</p>
                 </div>
             </div>
 
-            <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; margin-top: 0.5rem;">
-                <label style="margin: 0;">Build Assessment:</label>
-                <span id="stability-label" class="status-tag" style="font-size: 0.8rem; font-weight: 700;">STABLE</span>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+
+                <!-- Solidity -->
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="margin: 0;">Solidity</label>
+                    <span id="manifold-label" class="status-tag"
+                        style="font-size: 0.75rem; font-weight: 700;">WATERTIGHT</span>
+                </div>
+
+                <!-- Stability -->
+                <div>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <label style="margin: 0;">Stability</label>
+                        <span id="stability-label" class="status-tag"
+                            style="font-size: 0.75rem; font-weight: 700;">STABLE</span>
+                    </div>
+                    <div style="padding-left: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem;">
+                        <span id="arc-length-label" style="font-size: 0.75rem; color: var(--text-dim);">Contact Arc:
+                            0.00mm</span>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <span style="font-size: 0.75rem; color: var(--text-dim);">Tipping Threshold: <strong
+                                    id="tip-angle-label"
+                                    style="color: var(--text-main); font-weight: 500;">—</strong></span>
+                            <span style="font-size: 0.75rem; color: var(--text-dim);">Overhang: <strong
+                                    id="overhang-label"
+                                    style="color: var(--text-main); font-weight: 500;">—</strong></span>
+                        </div>
+                        <div
+                            style="position: relative; height: 5px; border-radius: 3px; background: linear-gradient(to right, #ef4444 0%, #ef4444 27.8%, #f59e0b 27.8%, #f59e0b 44.4%, #10b981 44.4%, #10b981 66.7%, #3b82f6 66.7%, #3b82f6 100%);">
+                            <div id="tip-gauge-marker"
+                                style="position: absolute; top: -3px; width: 3px; height: 11px; background: white; border-radius: 1px; box-shadow: 0 0 3px rgba(0,0,0,0.6); transform: translateX(-50%); left: 50%;">
+                            </div>
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-dim);">
+                            <span>0°</span><span>45°</span><span>90°</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tessellation Granularity -->
+                <div>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <label style="margin: 0;">Tessellation Granularity</label>
+                        <span class="optimize-link status-tag" id="auto-density"
+                            style="font-size: 0.75rem;">Smooth</span>
+                    </div>
+                    <div style="padding-left: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem;">
+                        <div class="control-row">
+                            <input type="range" id="segments" min="8" max="256" value="72" step="4">
+                            <div class="input-wrapper">
+                                <input type="number" id="num-segments" class="num-input" value="72" step="4">
+                                <span class="unit-tag">seg</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <span style="font-size: 0.75rem; color: var(--text-dim);">Max Facet Error</span>
+                            <span id="quality-label"
+                                style="font-size: 0.75rem; font-weight: 500; color: var(--text-main);">±0.000mm</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <div class="actions" style="display: flex; flex-direction: row; gap: 0.5rem;">
                 <button id="download-3mf" class="primary"
@@ -772,7 +855,7 @@
                     Download 3MF
                 </button>
                 <button id="download-btn" style="background: rgba(0,0,0,0.05); color: var(--text-dim);">
-                    Download Legacy STL
+                    Download STL
                 </button>
             </div>
     </aside>
@@ -796,13 +879,17 @@
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { 
-            calculateMaxBase, 
-            calculateAbsoluteMaxChamfer, 
-            calculateContactArcLength, 
-            calculateAutoOptimize, 
-            calculateAutoDensity 
-        } from './js/math_logic.js';
+        import {
+            calculateMaxBase,
+            calculateAbsoluteMaxChamfer,
+            calculateContactArcLength,
+            calculateAutoOptimize,
+            calculateAutoDensity,
+            calculateTipFactor,
+            buildTopologyFromIndices,
+            verifyManifold,
+            deduplicateGeometry
+        } from './js/math_logic.js?v=4';
 
         // !!!IMPORTANT NOTE!!!
         // This application does not have a server, all logic and assets exist in the html file
@@ -1302,13 +1389,32 @@
             }
             sphereMat.needsUpdate = true;
 
-            // Quality/Stability
-            const contactAngle = Math.asin(Math.min(0.99, baseSize / R_sphere)) * (180 / Math.PI);
+            // Tip Factor
+            const { tipAngle, overhangPercent, assessment: assessmentText, color: assessmentColor } =
+                calculateTipFactor(diameter, baseSize, thickness, chamfer);
+
+            // Continuous Manifold Verification
+            // The raw drawn buffer geometry deliberately has UV seams which register as topological "holes" to naive checks.
+            // We must simulate the 3MF Exporter's coordinate-merging deduplication correctly to assert true watertightness.
+            const flatPositions = geometry.attributes.position.array;
+            const flatIndices = geometry.index.array;
+            const { remappedIndices } = deduplicateGeometry(flatPositions, flatIndices);
+
+            const topology = buildTopologyFromIndices(remappedIndices);
+            const isSolid = verifyManifold(topology).isManifold;
+
+            const mLabel = document.getElementById('manifold-label');
+            if (mLabel) {
+                mLabel.innerText = isSolid ? "WATERTIGHT" : "NON-MANIFOLD";
+                mLabel.style.color = isSolid ? "#10b981" : "#ef4444";
+            }
+
             const sLabel = document.getElementById('stability-label');
-            if (contactAngle < 25) { sLabel.innerText = "UNSTABLE"; sLabel.style.color = "#ef4444"; }
-            else if (contactAngle < 35) { sLabel.innerText = "LOW"; sLabel.style.color = "#f59e0b"; }
-            else if (contactAngle < 55) { sLabel.innerText = "OPTIMAL"; sLabel.style.color = "#10b981"; }
-            else { sLabel.innerText = "OVERSIZED"; sLabel.style.color = "#3b82f6"; }
+            sLabel.innerText = assessmentText;
+            sLabel.style.color = assessmentColor;
+            document.getElementById('tip-angle-label').innerText = `${tipAngle.toFixed(1)}°`;
+            document.getElementById('overhang-label').innerText = `${overhangPercent.toFixed(1)}%`;
+            document.getElementById('tip-gauge-marker').style.left = `${Math.min(100, (tipAngle / 90) * 100).toFixed(1)}%`;
 
             const arcLen = (Math.PI * 2 * real_R_outer) / segments;
             document.getElementById('quality-label').innerText = `±${(arcLen / 4).toFixed(3)}mm`;
@@ -1316,7 +1422,7 @@
             // Contact Arc Length (Inner to Chamfer Start)
             const contactArcLength = calculateContactArcLength(diameter, baseSize, thickness, chamfer);
             const labelFactor = currentUnit === 'mm' ? 1 : 1 / 25.4;
-            document.getElementById('arc-length-label').innerText = `Sphere Contact Arc Length: ${(contactArcLength * labelFactor).toFixed(2)}${currentUnit}`;
+            document.getElementById('arc-length-label').innerText = `Contact Arc: ${(contactArcLength * labelFactor).toFixed(2)}${currentUnit}`;
             // --- Auto Optimize Button Color ---
             const optBtn = document.getElementById('auto-optimize');
             if (optBtn) {
@@ -1613,7 +1719,7 @@
 
             // Display Value needs to align to the current UI unit (not forceUnit)
             const displayVal = (currentUnit === 'mm' || id === 'segments') ? mmValue : mmValue / 25.4;
-            
+
             range.value = displayVal;
             num.value = displayVal.toFixed(id === 'segments' ? 0 : (currentUnit === 'mm' ? 1 : 2));
             if (triggerUpdate && typeof updateGeometry === 'function') {
@@ -1809,25 +1915,27 @@
         });
 
 
-
-
-        import { generate3MFXML } from './js/export_3mf.js';
+        import * as fflate from 'https://unpkg.com/fflate@0.8.0/esm/browser.js';
+        import { generate3MFXML } from './js/export_3mf.js?v=3';
 
         async function download3MF() {
-            const zip = new JSZip();
             const ct = `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>`;
             const rl = `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Target="/3D/model.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>`;
             let m; scene.traverse(c => { if (c.isMesh && c !== ground && c !== sphereRef) m = c; });
             const p = m.geometry.attributes.position.array;
             const idx = m.geometry.index.array;
 
-            const mx = generate3MFXML(p, idx);
+            const exportUnit = currentUnit === 'in' ? 'inch' : 'millimeter';
+            const mx = generate3MFXML(p, idx, exportUnit);
 
-            zip.file("[Content_Types].xml", ct);
-            zip.folder("_rels").file(".rels", rl);
-            zip.folder("3D").file("model.model", mx);
-            const blob = await zip.generateAsync({ type: "blob" });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `sphere_stand_${diameter.toFixed(1)}mm.3mf`; a.click();
+            const zipped = fflate.zipSync({
+                '[Content_Types].xml': fflate.strToU8(ct),
+                '_rels/.rels': fflate.strToU8(rl),
+                '3D/model.model': [fflate.strToU8(mx), { level: 6 }]
+            });
+
+            const blob = new Blob([zipped], { type: 'application/zip' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `sphere_stand_${(currentUnit === 'in' ? diameter/25.4 : diameter).toFixed(1)}${currentUnit}.3mf`; a.click();
         }
         document.getElementById('download-3mf').addEventListener('click', download3MF);
 
@@ -1840,18 +1948,23 @@
             const vi = new DataView(bu);
             vi.setUint32(80, tf, true);
             let o = 84;
+            
+            // STL has no unit metadata. We must scale the internal MM coordinates during binary write if the user requested Inches.
+            const scale = currentUnit === 'in' ? (1 / 25.4) : 1;
+            
             for (let i = 0; i < idx.length; i += 3) {
                 [0, 0, 0].forEach(n => { vi.setFloat32(o, n, true); o += 4; });
+                const order = [0, 2, 1]; // Swap 2 and 1 to fix winding order for Y/Z swap
                 for (let j = 0; j < 3; j++) {
-                    const k = idx[i + j] * 3;
-                    vi.setFloat32(o, p[k], true); o += 4;
-                    vi.setFloat32(o, p[k + 2], true); o += 4;
-                    vi.setFloat32(o, p[k + 1], true); o += 4;
+                    const k = idx[i + order[j]] * 3;
+                    vi.setFloat32(o, p[k] * scale, true); o += 4;
+                    vi.setFloat32(o, p[k + 2] * scale, true); o += 4;
+                    vi.setFloat32(o, p[k + 1] * scale, true); o += 4;
                 }
                 vi.setUint16(o, 0, true); o += 2;
             }
             const blob = new Blob([bu], { type: 'application/octet-stream' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `sphere_stand_${diameter.toFixed(1)}mm.stl`; a.click();
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `sphere_stand_${(currentUnit === 'in' ? diameter/25.4 : diameter).toFixed(1)}${currentUnit}.stl`; a.click();
         }
         document.getElementById('download-btn').addEventListener('click', downloadSTL);
 
@@ -1924,7 +2037,7 @@
                     } else {
                         clearBtn.style.border = '1px dashed rgba(0,0,0,0.3)';
                     }
-                    
+
                     clearBtn.addEventListener('click', (e) => {
                         document.querySelectorAll('.tex-swatch').forEach(s => {
                             s.classList.remove('active');
@@ -1969,7 +2082,7 @@
                         saveConfig();
 
                         loadSphereTexture(tex.url);
-                        
+
                         // Auto switch sphere to "solid" (photo) mode when a texture is selected
                         const solidBtn = document.getElementById('sphere-photo');
                         if (solidBtn && !solidBtn.classList.contains('active')) {

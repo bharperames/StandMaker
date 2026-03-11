@@ -34,10 +34,11 @@ describe('3MF Headless Export logic', () => {
 
     // Test that the exact correct deduplicated indices are remapped into the triangle
     // For Triangle 2 (originally 3, 4, 5), they should remap to absolute indices 0, 2, 3
+    // Note: Due to pure +90X rotation for Z-up mapping, winding order is naturally preserved.
     expect(resultXML).toContain('<triangle v1="0" v2="2" v3="3" />');
   });
 
-  test('generate3MFXML prevents degenerate triangles', () => {
+  test('generate3MFXML retains degenerate triangles to preserve topological manifolds', () => {
      const mockPositions = [
         0, 0, 0,  
         10, 0, 0,  
@@ -51,8 +52,10 @@ describe('3MF Headless Export logic', () => {
 
     const resultXML = generate3MFXML(mockPositions, mockIndices);
     
-    // The triangle loop prevents logging this, so <triangles> block should be completely empty
-    expect(resultXML).toContain('<triangles></triangles>');
+    // We no longer skip degenerate triangles to ensure we don't tear open non-manifold holes.
+    // The <triangles> block should contain the degenerate triangle.
+    // Note: Winding order swap means v1="0" v2="1" v3="1" becomes v1="0" v2="1" v3="1".
+    expect(resultXML).toContain('<triangle v1="0" v2="1" v3="1" />');
   });
 
   test('generate3MFXML throws error on bad input', () => {

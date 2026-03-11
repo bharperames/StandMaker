@@ -1,9 +1,10 @@
-import { 
-  calculateMaxBase, 
+import {
+  calculateMaxBase,
   calculateAbsoluteMaxChamfer,
   calculateContactArcLength,
   calculateAutoOptimize,
-  calculateAutoDensity
+  calculateAutoDensity,
+  calculateTipFactor
 } from '../js/math_logic.js';
 
 describe('Math Logic Unit Tests', () => {
@@ -57,6 +58,39 @@ describe('Math Logic Unit Tests', () => {
     const n = calculateAutoDensity(20, 5);
     expect(n % 8).toBe(0); // Should be a multiple of 8
     expect(n).toBe(72);
+  });
+
+  test('calculateTipFactor', () => {
+    // 50mm sphere, 20mm base, 5mm wall, 2mm chamfer
+    // ROuter = 22.5, rcActive = 20.5
+    // tipAngle = atan(20.5 / sqrt(625 - 420.25)) = atan(20.5 / 14.31) ≈ 55.1°  => OPTIMAL
+    // overhangPercent = (1 - (20.5/25)^2)^1.5 * 100 ≈ 18.8%
+    const r1 = calculateTipFactor(50, 20, 5, 2);
+    expect(r1.tipAngle).toBeCloseTo(55.1, 0);
+    expect(r1.overhangPercent).toBeCloseTo(18.8, 0);
+    expect(r1.assessment).toBe('OPTIMAL');
+
+    // 50mm sphere, 15mm base, 5mm wall, 0mm chamfer
+    // ROuter = 17.5, rcActive = 17.5
+    // tipAngle = atan(17.5 / sqrt(625 - 306.25)) = atan(17.5 / 17.85) ≈ 44.4°  => OPTIMAL
+    // overhangPercent = (1 - (17.5/25)^2)^1.5 * 100 ≈ 36.4%
+    const r2 = calculateTipFactor(50, 15, 5, 0);
+    expect(r2.tipAngle).toBeCloseTo(44.4, 0);
+    expect(r2.overhangPercent).toBeCloseTo(36.4, 0);
+    expect(r2.assessment).toBe('OPTIMAL');
+
+    // Very narrow base — sphere balanced on near-point, should be UNSTABLE
+    const r3 = calculateTipFactor(50, 5, 1, 0);
+    expect(r3.tipAngle).toBeLessThan(25);
+    expect(r3.assessment).toBe('UNSTABLE');
+    expect(r3.overhangPercent).toBeGreaterThan(90);
+
+    // tipAngle and overhangPercent always in valid ranges
+    const r4 = calculateTipFactor(100, 40, 8, 3);
+    expect(r4.tipAngle).toBeGreaterThan(0);
+    expect(r4.tipAngle).toBeLessThan(90);
+    expect(r4.overhangPercent).toBeGreaterThanOrEqual(0);
+    expect(r4.overhangPercent).toBeLessThanOrEqual(100);
   });
 
 });
