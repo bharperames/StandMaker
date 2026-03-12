@@ -15,7 +15,9 @@
         {
             "imports": {
                 "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+                "three-mesh-bvh": "https://unpkg.com/three-mesh-bvh@0.7.3/build/index.module.js",
+                "three-bvh-csg": "https://unpkg.com/three-bvh-csg@0.0.16/build/index.module.js"
             }
         }
     </script>
@@ -494,6 +496,36 @@
             margin-top: 2px;
             text-align: center;
         }
+
+        /* Accordion */
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 0.1rem 0;
+        }
+        .accordion-header:hover label {
+            color: var(--text-main);
+            cursor: pointer;
+        }
+        .accordion-chevron {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        .accordion-chevron.open {
+            transform: rotate(180deg);
+        }
+        .accordion-body {
+            display: none;
+            padding-top: 0.5rem;
+        }
+        .accordion-body.open {
+            display: block;
+        }
     </style>
 </head>
 
@@ -843,6 +875,82 @@
                 </div>
 
             </div>
+            <!-- Text on Base Accordion -->
+            <div>
+                <div class="accordion-header" id="text-accordion-header">
+                    <label style="margin: 0; cursor: pointer;">Text on Base</label>
+                    <span class="accordion-chevron" id="text-accordion-chevron">▼</span>
+                </div>
+                <div class="accordion-body" id="text-accordion-body">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.25rem;">
+                        <div class="input-group">
+                            <label style="font-size: 0.75rem; color: var(--text-dim);">Text</label>
+                            <input type="text" id="text-input" maxlength="40" placeholder="e.g. Labradorite"
+                                style="width: 100%; padding: 0.35rem 0.5rem; border: 1px solid rgba(0,0,0,0.15); border-radius: 5px; font-size: 0.8rem; background: rgba(0,0,0,0.03); color: var(--text-main); box-sizing: border-box;">
+                        </div>
+                        <div class="input-group">
+                            <label style="font-size: 0.75rem; color: var(--text-dim);">Style</label>
+                            <div style="display: flex; gap: 0.4rem;">
+                                <button id="text-style-emboss" class="unit-btn"
+                                    style="flex: 1; font-size: 0.75rem; background: var(--accent); color: white;">Emboss</button>
+                                <button id="text-style-engrave" class="unit-btn"
+                                    style="flex: 1; font-size: 0.75rem;">Engrave</button>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label style="font-size: 0.75rem; color: var(--text-dim);">
+                                Font Size
+                            </label>
+                            <div class="control-row">
+                                <input type="range" id="text-font-size" min="2" max="15" value="5" step="0.5">
+                                <div class="input-wrapper">
+                                    <input type="number" id="num-text-font-size" class="num-input" value="5" step="0.5" min="2" max="15">
+                                    <span class="unit-tag">mm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label style="font-size: 0.75rem; color: var(--text-dim);" id="text-depth-label">
+                                Emboss Height
+                            </label>
+                            <div class="control-row">
+                                <input type="range" id="text-depth" min="0.5" max="3" value="1" step="0.1">
+                                <div class="input-wrapper">
+                                    <input type="number" id="num-text-depth" class="num-input" value="1" step="0.1" min="0.5" max="3">
+                                    <span class="unit-tag">mm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.4rem;">
+                            <button id="text-apply" class="primary"
+                                style="flex: 1; padding: 0.4rem; font-size: 0.8rem;">Apply</button>
+                            <button id="text-clear"
+                                style="flex: 0 0 auto; padding: 0.4rem 0.6rem; font-size: 0.8rem; background: rgba(0,0,0,0.05); color: var(--text-dim); border: none; border-radius: 5px; cursor: pointer;">Clear</button>
+                        </div>
+                        <p style="font-size: 0.68rem; color: var(--text-dim); margin: 0; line-height: 1.4;">
+                            Use bold sans-serif style. Min 0.5mm feature size for reliable printing. Emboss raises text; Engrave recesses it.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- Pricing Estimate -->
+            <div>
+                <label style="margin-bottom: 0.35rem; display: block;">Price Estimate (<span id="pricing-volume-label">—</span>)</label>
+                <table id="pricing-table" style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; font-weight: 500; color: var(--text-dim); padding-bottom: 0.25rem;">Material</th>
+                            <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.25rem;">1×</th>
+                            <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.25rem;">5×</th>
+                            <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.25rem;">10×</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pricing-tbody">
+                        <tr><td colspan="4" style="color: var(--text-dim); font-style: italic;">Calculating…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
             <div class="actions" style="display: flex; flex-direction: row; gap: 0.5rem;">
                 <button id="download-3mf" class="primary"
                     style="background: rgba(100, 191, 97, 0.2) !important; color: var(--text-dim) !important;">
@@ -886,10 +994,16 @@
             calculateAutoOptimize,
             calculateAutoDensity,
             calculateTipFactor,
+            computeMeshVolumeMm3,
+            computeMeshSurfaceAreaMm2,
             buildTopologyFromIndices,
             verifyManifold,
             deduplicateGeometry
-        } from './js/math_logic.js?v=4';
+        } from './js/math_logic.js?v=6';
+        import { calculateEstimatedPrice } from './js/pricing.js?v=2';
+        import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+        import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
+        import { Evaluator, Brush, ADDITION, SUBTRACTION } from 'three-bvh-csg';
 
         // !!!IMPORTANT NOTE!!!
         // This application does not have a server, all logic and assets exist in the html file
@@ -912,6 +1026,217 @@
         let sphereTextureRotation = 0;
         let showDimensions = false;
         let activeTextureId = 'none';
+
+        // Text-on-base state
+        let textString       = '';
+        let textStyle        = 'emboss';
+        let textFontSize     = 5.0;
+        let textDepth        = 1.0;
+        let loadedFont       = null;
+        let rawStandGeometry = null;   // base geometry before text CSG; kept to re-apply on changes
+        let exportGeometry   = null;   // final geometry to export — post-CSG if text is active, else rawStandGeometry
+
+        const csgEvaluator = new Evaluator();
+
+        // ── Text on Base ─────────────────────────────────────────────────────
+
+        const fontLoader = new FontLoader();
+        fontLoader.load(
+            'https://unpkg.com/three@0.160.0/examples/fonts/helvetiker_bold.typeface.json',
+            (font) => {
+                loadedFont = font;
+                if (textString.trim()) applyTextToStand();
+            }
+        );
+
+        /**
+         * Builds and returns a merged BufferGeometry of all characters wrapped around the outer
+         * wall of the base (world-space, ready for CSG). Returns null if nothing to build.
+         */
+        function buildTextGeometry() {
+            if (!loadedFont || !textString.trim()) return null;
+
+            const R_sphere  = diameter / 2;
+            const z_offset  = R_sphere + seatingHeight;
+            const ROuter    = baseSize + thickness / 2;
+            const rc_active = Math.max(0, ROuter - chamfer);
+            const y_contact = z_offset - Math.sqrt(Math.max(0, R_sphere ** 2 - Math.min(R_sphere, rc_active) ** 2));
+            const wallMidY  = y_contact / 2;
+            const circumference = 2 * Math.PI * ROuter;
+
+            const spacing = textFontSize * 0.08;
+            const chars = textString.split('');
+
+            const charData = chars.map(ch => {
+                if (ch === ' ') return { shapes: null, width: textFontSize * 0.35, minY: 0, maxY: textFontSize };
+                const shapes = loadedFont.generateShapes(ch, textFontSize);
+                const sg = new THREE.ShapeGeometry(shapes);
+                sg.computeBoundingBox();
+                const w   = sg.boundingBox.max.x - sg.boundingBox.min.x;
+                const minY = sg.boundingBox.min.y;
+                const maxY = sg.boundingBox.max.y;
+                sg.dispose();
+                return { shapes, width: Math.max(w, textFontSize * 0.1), minY, maxY };
+            });
+
+            const totalWidth = charData.reduce((s, cd, i) =>
+                s + cd.width + (i < charData.length - 1 ? spacing : 0), 0);
+
+            if (totalWidth > circumference * 0.98) {
+                console.warn('[TextOnBase] Text too long for base circumference');
+                return null;
+            }
+
+            // Compute a single shared vertical centre from the full glyph set so that all
+            // characters (descenders, ascenders, punctuation) are positioned consistently
+            // relative to the same baseline rather than each being centred on its own bbox.
+            const nonSpace = charData.filter(cd => cd.shapes);
+            const blockMinY = nonSpace.length ? Math.min(...nonSpace.map(cd => cd.minY)) : 0;
+            const blockMaxY = nonSpace.length ? Math.max(...nonSpace.map(cd => cd.maxY)) : textFontSize;
+            const blockCY   = (blockMinY + blockMaxY) / 2;
+
+            const geometries = [];
+            let curX = -totalWidth / 2;
+
+            for (let i = 0; i < chars.length; i++) {
+                const cd = charData[i];
+                if (!cd.shapes) { curX += cd.width + spacing; continue; }
+
+                // For engrave: text solid starts inside the wall and extends outward through the surface.
+                // For emboss:  text solid starts at the outer surface and protrudes outward.
+                const r = textStyle === 'engrave' ? ROuter - textDepth : ROuter;
+                // curveSegments scales with the base tessellation so text curve quality
+                // stays consistent with the rest of the model (min 6 for tiny segment counts).
+                const textCurveSegments = Math.max(6, Math.round(segments / 8));
+                const cg = new THREE.ExtrudeGeometry(cd.shapes,
+                    { depth: textDepth * (textStyle === 'engrave' ? 2 : 1), bevelEnabled: false, curveSegments: textCurveSegments });
+                cg.computeBoundingBox();
+                const cx = (cg.boundingBox.max.x + cg.boundingBox.min.x) / 2;
+                // Use the shared block centre for Y so descenders/ascenders/punctuation all sit
+                // in their correct positions relative to one another.
+                cg.translate(-cx, -blockCY, 0);
+
+                // Pre-flip X: the wrap matrix has det=-1 (left-handed), so this double-flip
+                // cancels the mirror and text reads correctly from outside the cylinder.
+                cg.applyMatrix4(new THREE.Matrix4().makeScale(-1, 1, 1));
+
+                const θ = -(curX + cd.width / 2) / ROuter;
+                const cosT = Math.cos(θ), sinT = Math.sin(θ);
+                cg.applyMatrix4(new THREE.Matrix4().set(
+                    -sinT, 0, cosT, r * cosT,
+                        0, 1,    0, wallMidY,
+                     cosT, 0, sinT, r * sinT,
+                        0, 0,    0, 1
+                ));
+                geometries.push(cg);
+                curX += cd.width + spacing;
+            }
+
+            if (!geometries.length) return null;
+
+            const merged = BufferGeometryUtils.mergeGeometries(geometries);
+            geometries.forEach(g => g.dispose());
+            return merged;
+        }
+
+        /**
+         * Applies (or removes) text from the stand using CSG boolean operations.
+         * emboss → ADDITION (union), engrave → SUBTRACTION.
+         * The stand mesh geometry is replaced in-place; no separate textMesh exists.
+         */
+        function applyTextToStand() {
+            if (!rawStandGeometry) return;
+
+            const resetToRaw = () => {
+                exportGeometry = rawStandGeometry;
+                if (standMesh)    standMesh.geometry    = rawStandGeometry;
+                if (wireOverlay)  wireOverlay.geometry  = rawStandGeometry;
+            };
+
+            if (!loadedFont || !textString.trim()) { resetToRaw(); return; }
+
+            const textGeo = buildTextGeometry();
+            if (!textGeo) { resetToRaw(); return; }
+
+            const dummy = new THREE.MeshStandardMaterial();
+            const baseTmp  = new Brush(rawStandGeometry, dummy);
+            const textTmp  = new Brush(textGeo, dummy);
+            const op = textStyle === 'emboss' ? ADDITION : SUBTRACTION;
+
+            try {
+                const result = csgEvaluator.evaluate(baseTmp, textTmp, op);
+                // CSG output is non-indexed; mergeVertices welds shared verts and produces an index buffer.
+                const indexedGeo = BufferGeometryUtils.mergeVertices(result.geometry);
+                indexedGeo.computeVertexNormals();
+                exportGeometry = indexedGeo;
+                if (standMesh)   standMesh.geometry   = indexedGeo;
+                if (wireOverlay) wireOverlay.geometry  = indexedGeo;
+            } catch (e) {
+                console.error('[CSG] Failed, falling back to raw geometry:', e);
+                resetToRaw();
+            }
+
+            textGeo.dispose();
+            dummy.dispose();
+        }
+
+        // ── Text UI event wiring ─────────────────────────────────────────────
+
+        document.getElementById('text-accordion-header').addEventListener('click', () => {
+            const body    = document.getElementById('text-accordion-body');
+            const chevron = document.getElementById('text-accordion-chevron');
+            body.classList.toggle('open');
+            chevron.classList.toggle('open');
+        });
+
+        function setTextStyle(style) {
+            textStyle = style;
+            const label = document.getElementById('text-depth-label');
+            label.textContent = style === 'emboss' ? 'Emboss Height' : 'Engrave Depth';
+            document.getElementById('text-style-emboss').style.background  = style === 'emboss'  ? 'var(--accent)' : '';
+            document.getElementById('text-style-emboss').style.color       = style === 'emboss'  ? 'white' : '';
+            document.getElementById('text-style-engrave').style.background = style === 'engrave' ? 'var(--accent)' : '';
+            document.getElementById('text-style-engrave').style.color      = style === 'engrave' ? 'white' : '';
+            applyTextToStand();
+        }
+
+        document.getElementById('text-style-emboss').addEventListener('click',  () => setTextStyle('emboss'));
+        document.getElementById('text-style-engrave').addEventListener('click', () => setTextStyle('engrave'));
+
+        document.getElementById('text-apply').addEventListener('click', () => {
+            textString = document.getElementById('text-input').value;
+            applyTextToStand();
+        });
+
+        document.getElementById('text-clear').addEventListener('click', () => {
+            textString = '';
+            document.getElementById('text-input').value = '';
+            applyTextToStand();
+        });
+
+        // Font size slider
+        document.getElementById('text-font-size').addEventListener('input', (e) => {
+            textFontSize = parseFloat(e.target.value);
+            document.getElementById('num-text-font-size').value = textFontSize;
+            if (textString.trim()) applyTextToStand();
+        });
+        document.getElementById('num-text-font-size').addEventListener('change', (e) => {
+            textFontSize = Math.min(15, Math.max(2, parseFloat(e.target.value) || 5));
+            document.getElementById('text-font-size').value = textFontSize;
+            if (textString.trim()) applyTextToStand();
+        });
+
+        // Depth slider
+        document.getElementById('text-depth').addEventListener('input', (e) => {
+            textDepth = parseFloat(e.target.value);
+            document.getElementById('num-text-depth').value = textDepth;
+            if (textString.trim()) applyTextToStand();
+        });
+        document.getElementById('num-text-depth').addEventListener('change', (e) => {
+            textDepth = Math.min(3, Math.max(0.5, parseFloat(e.target.value) || 1));
+            document.getElementById('text-depth').value = textDepth;
+            if (textString.trim()) applyTextToStand();
+        });
 
         function saveConfig() {
             const config = {
@@ -951,6 +1276,11 @@
                         document.getElementById('unit-mm').classList.toggle('active', currentUnit === 'mm');
                         document.getElementById('unit-in').classList.toggle('active', currentUnit === 'in');
                         ['d', 't', 'c', 'b', 'cl'].forEach(u => document.getElementById('unit-label-' + u).innerText = currentUnit);
+                    }
+                    // Re-apply bounds in the loaded unit so slider thumbs aren't clamped against wrong-unit min/max
+                    if (currentUnit === 'in') {
+                        const bIn = { diameter: [0.1, 20, 0.05], thickness: [0.02, 4, 0.01], chamfer: [0, 1, 0.01], ratio: [0.1, 20, 0.05], clearance: [0.08, 4, 0.01] };
+                        Object.keys(bIn).forEach(id => { const s = document.getElementById(id); s.min = bIn[id][0]; s.max = bIn[id][1]; s.step = bIn[id][2]; });
                     }
                     if (c.vizMode) {
                         vizMode = c.vizMode;
@@ -1334,6 +1664,8 @@
             geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2));
             geometry.setIndex(indices);
             geometry.computeVertexNormals();
+            rawStandGeometry = geometry;
+            exportGeometry   = geometry;  // applyTextToStand() will update this if text is active
 
             if (vizMode === 'solid' || vizMode === 'both') {
                 solidMaterial.bumpMap = printBumpMap;
@@ -1435,9 +1767,36 @@
             }
 
             updateDimensions();
+            updatePricingTable(flatPositions, remappedIndices);
+            applyTextToStand();
             saveConfig();
         }
 
+        const PRICING_MATERIALS = ['PLA', 'PLA+', 'RPLA', 'PETG', 'ABS'];
+        const PRICING_QTYS = [1, 5, 10];
+
+        function updatePricingTable(positions, indices) {
+            const volumeMm3  = computeMeshVolumeMm3(positions, indices);
+            const volumeCm3  = volumeMm3 / 1000;
+            const volumeIn3  = volumeMm3 / 16387.064;
+            const volLabel   = document.getElementById('pricing-volume-label');
+            if (volLabel) {
+                volLabel.textContent = currentUnit === 'in'
+                    ? `${volumeIn3.toFixed(3)} in³`
+                    : `${volumeCm3.toFixed(2)} cm³`;
+            }
+            const tbody = document.getElementById('pricing-tbody');
+            tbody.innerHTML = PRICING_MATERIALS.map(mat => {
+                const cells = PRICING_QTYS.map(qty => {
+                    const price = calculateEstimatedPrice(mat, qty, volumeMm3);
+                    return `<td style="text-align: right; color: var(--text-main); padding: 0.1rem 0;">$${price.toFixed(2)}</td>`;
+                }).join('');
+                return `<tr>
+                    <td style="color: var(--text-dim); padding: 0.1rem 0;">${mat}</td>
+                    ${cells}
+                </tr>`;
+            }).join('');
+        }
 
         // Helper: Format Dimension (Fractional Inches)
         function formatDim(val) {
@@ -1718,7 +2077,8 @@
             else if (id === 'segments') segments = Math.round(val);
 
             // Display Value needs to align to the current UI unit (not forceUnit)
-            const displayVal = (currentUnit === 'mm' || id === 'segments') ? mmValue : mmValue / 25.4;
+            // segments is unitless — always use raw val, never scale by 25.4
+            const displayVal = id === 'segments' ? val : (currentUnit === 'mm' ? mmValue : mmValue / 25.4);
 
             range.value = displayVal;
             num.value = displayVal.toFixed(id === 'segments' ? 0 : (currentUnit === 'mm' ? 1 : 2));
@@ -1727,11 +2087,23 @@
             }
         }
 
+        // Debounced geometry update: state + display values update immediately on every
+        // input event (so the slider thumb and number move freely), but the heavy
+        // geometry rebuild (+ CSG) is deferred until 80 ms after the last change.
+        let _geoUpdateTimer = null;
+        function scheduleGeometryUpdate() {
+            clearTimeout(_geoUpdateTimer);
+            _geoUpdateTimer = setTimeout(() => updateGeometry(), 80);
+        }
+
         ['diameter', 'thickness', 'chamfer', 'ratio', 'segments', 'clearance'].forEach(id => {
             const range = document.getElementById(id);
             const num = document.getElementById('num-' + id);
             const stateId = (id === 'ratio') ? 'baseSize' : (id === 'clearance' ? 'seatingHeight' : id);
-            range.addEventListener('input', (e) => syncInputs(stateId, parseFloat(e.target.value)));
+            range.addEventListener('input', (e) => {
+                syncInputs(stateId, parseFloat(e.target.value), null, false);
+                scheduleGeometryUpdate();
+            });
             num.addEventListener('change', (e) => syncInputs(stateId, parseFloat(e.target.value)));
         });
 
@@ -1921,9 +2293,9 @@
         async function download3MF() {
             const ct = `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>`;
             const rl = `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Target="/3D/model.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>`;
-            let m; scene.traverse(c => { if (c.isMesh && c !== ground && c !== sphereRef) m = c; });
-            const p = m.geometry.attributes.position.array;
-            const idx = m.geometry.index.array;
+            const exportGeo = exportGeometry;
+            const p = exportGeo.attributes.position.array;
+            const idx = exportGeo.index.array;
 
             const exportUnit = currentUnit === 'in' ? 'inch' : 'millimeter';
             const mx = generate3MFXML(p, idx, exportUnit);
@@ -1940,9 +2312,9 @@
         document.getElementById('download-3mf').addEventListener('click', download3MF);
 
         function downloadSTL() {
-            let m; scene.traverse(c => { if (c.isMesh && c !== ground && c !== sphereRef) m = c; });
-            const p = m.geometry.attributes.position.array;
-            const idx = m.geometry.index.array;
+            const exportGeo = exportGeometry;
+            const p = exportGeo.attributes.position.array;
+            const idx = exportGeo.index.array;
             const tf = idx.length / 3;
             const bu = new ArrayBuffer(84 + tf * 50);
             const vi = new DataView(bu);

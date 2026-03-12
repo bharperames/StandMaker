@@ -93,6 +93,48 @@ export function calculateAutoDensity(baseSize, thickness) {
 }
 
 /**
+ * Computes the volume of a closed manifold mesh using the signed tetrahedron method
+ * (divergence theorem). Each triangle contributes a signed tetrahedral volume from
+ * the origin; summing and taking the absolute value gives the enclosed volume.
+ * @param {Float32Array|Array} positions - Flat vertex array [x0,y0,z0, x1,y1,z1, ...] in mm.
+ * @param {Uint16Array|Uint32Array|Array} indices - Triangle index buffer.
+ * @returns {number} Volume in mm³.
+ */
+export function computeMeshVolumeMm3(positions, indices) {
+    let volume = 0;
+    for (let i = 0; i < indices.length; i += 3) {
+        const i0 = indices[i] * 3, i1 = indices[i + 1] * 3, i2 = indices[i + 2] * 3;
+        const x0 = positions[i0], y0 = positions[i0 + 1], z0 = positions[i0 + 2];
+        const x1 = positions[i1], y1 = positions[i1 + 1], z1 = positions[i1 + 2];
+        const x2 = positions[i2], y2 = positions[i2 + 1], z2 = positions[i2 + 2];
+        volume += (1 / 6) * (
+            x0 * (y1 * z2 - y2 * z1) -
+            x1 * (y0 * z2 - y2 * z0) +
+            x2 * (y0 * z1 - y1 * z0)
+        );
+    }
+    return Math.abs(volume);
+}
+
+/**
+ * Computes the total surface area of a mesh by summing triangle areas.
+ * @param {Float32Array|Array} positions - Flat vertex array [x0,y0,z0,...] in mm.
+ * @param {Uint16Array|Uint32Array|Array} indices - Triangle index buffer.
+ * @returns {number} Total surface area in mm².
+ */
+export function computeMeshSurfaceAreaMm2(positions, indices) {
+    let area = 0;
+    for (let i = 0; i < indices.length; i += 3) {
+        const i0 = indices[i] * 3, i1 = indices[i + 1] * 3, i2 = indices[i + 2] * 3;
+        const ax = positions[i1]     - positions[i0],     ay = positions[i1 + 1] - positions[i0 + 1], az = positions[i1 + 2] - positions[i0 + 2];
+        const bx = positions[i2]     - positions[i0],     by = positions[i2 + 1] - positions[i0 + 1], bz = positions[i2 + 2] - positions[i0 + 2];
+        const cx = ay * bz - az * by, cy = az * bx - ax * bz, cz = ax * by - ay * bx;
+        area += 0.5 * Math.sqrt(cx * cx + cy * cy + cz * cz);
+    }
+    return area;
+}
+
+/**
  * Calculates the tip factor for a sphere resting on the stand.
  * The tipping angle is how far the sphere must tilt before its center of gravity
  * passes over the outer rim edge and it falls off. The overhang percent is the
