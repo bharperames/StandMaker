@@ -38,24 +38,22 @@ describe('3MF Headless Export logic', () => {
     expect(resultXML).toContain('<triangle v1="0" v2="2" v3="3" />');
   });
 
-  test('generate3MFXML retains degenerate triangles to preserve topological manifolds', () => {
-     const mockPositions = [
-        0, 0, 0,  
-        10, 0, 0,  
-        10, 10, 0 
+  test('generate3MFXML omits degenerate triangles (3MF spec §4.1.4 compliance)', () => {
+    const mockPositions = [
+        0, 0, 0,
+        10, 0, 0,
+        10, 10, 0
     ];
 
-    // A completely flat, degenerate triangle where two points are identical 
-    const mockIndices = [
-        0, 1, 1 
-    ];
+    // A degenerate triangle where two vertex indices are identical
+    const mockIndices = [0, 1, 1];
 
     const resultXML = generate3MFXML(mockPositions, mockIndices);
-    
-    // We no longer skip degenerate triangles to ensure we don't tear open non-manifold holes.
-    // The <triangles> block should contain the degenerate triangle.
-    // Note: Winding order swap means v1="0" v2="1" v3="1" becomes v1="0" v2="1" v3="1".
-    expect(resultXML).toContain('<triangle v1="0" v2="1" v3="1" />');
+
+    // 3MF spec §4.1.4 prohibits triangles with duplicate vertex indices.
+    // Degenerate triangles have no area and no valid edges — omitting them is safe and required.
+    const triangleMatches = resultXML.match(/<triangle /g) || [];
+    expect(triangleMatches.length).toBe(0);
   });
 
   test('generate3MFXML throws error on bad input', () => {

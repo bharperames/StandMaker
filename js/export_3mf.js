@@ -37,11 +37,12 @@ export function generate3MFXML(positions, indices, exportUnit = 'millimeter') {
         const map1 = indexRemap[indices[i]];
         const map2 = indexRemap[indices[i + 1]];
         const map3 = indexRemap[indices[i + 2]];
-        
-        // Do NOT skip degenerate triangles (e.g., collapsed poles) because removing them leaves 
-        // open non-manifold edges in the surrounding geometry, forcing slicers to reject the mesh.
-        // We output the exact topology provided by ThreeJS. The slicer will safely discard zero-area facets.
-        // Because our transformation was a pure rotation (determinant +1), we preserve the native CCW winding order.
+
+        // 3MF spec §4.1.4: a triangle MUST NOT have two vertices with the same index.
+        // Degenerate triangles (collapsed by vertex deduplication) have no area and no valid edges —
+        // they cannot close any manifold edge, so omitting them is safe and spec-compliant.
+        if (map1 === map2 || map2 === map3 || map1 === map3) continue;
+
         t += `<triangle v1="${map1}" v2="${map2}" v3="${map3}" />`;
     }
 
