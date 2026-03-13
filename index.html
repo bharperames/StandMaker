@@ -937,21 +937,53 @@
                 </div>
             </div>
             <!-- Pricing Estimate -->
-            <div>
-                <label style="margin-bottom: 0.35rem; display: block;">Price Estimate (<span id="pricing-volume-label">—</span>)</label>
-                <table id="pricing-table" style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
-                    <thead>
-                        <tr>
-                            <th style="text-align: left; font-weight: 500; color: var(--text-dim); padding-bottom: 0.25rem;">Material</th>
-                            <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.25rem;">1×</th>
-                            <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.25rem;">5×</th>
-                            <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.25rem;">10×</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pricing-tbody">
-                        <tr><td colspan="4" style="color: var(--text-dim); font-style: italic;">Calculating…</td></tr>
-                    </tbody>
-                </table>
+            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <label style="margin: 0;">Price Estimate (<span id="pricing-volume-label">—</span>)</label>
+
+                <!-- Print Service (aggregator) -->
+                <div>
+                    <div style="font-size: 0.7rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.2rem;">Print Service</div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left; font-weight: 500; color: var(--text-dim); padding-bottom: 0.2rem;">Material</th>
+                                <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.2rem;">1×</th>
+                                <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.2rem;">5×</th>
+                                <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.2rem;">10×</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pricing-tbody">
+                            <tr><td colspan="4" style="color: var(--text-dim); font-style: italic;">Calculating…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Local / DIY -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.2rem;">
+                        <div style="font-size: 0.7rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em;">Local / DIY</div>
+                        <div style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.72rem; color: var(--text-dim);">
+                            <span>$</span>
+                            <input type="number" id="filament-cost-per-kg" value="20" min="1" max="999" step="1"
+                                style="width: 3rem; padding: 0.1rem 0.25rem; border: 1px solid rgba(0,0,0,0.15); border-radius: 4px; font-size: 0.72rem; background: rgba(0,0,0,0.03); color: var(--text-main); text-align: right;">
+                            <span>/kg</span>
+                        </div>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left; font-weight: 500; color: var(--text-dim); padding-bottom: 0.2rem;">Material</th>
+                                <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.2rem;">1×</th>
+                                <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.2rem;">5×</th>
+                                <th style="text-align: right; font-weight: 500; color: var(--text-dim); padding-bottom: 0.2rem;">10×</th>
+                            </tr>
+                        </thead>
+                        <tbody id="local-pricing-tbody">
+                            <tr><td colspan="4" style="color: var(--text-dim); font-style: italic;">Calculating…</td></tr>
+                        </tbody>
+                    </table>
+                    <div id="local-pricing-time" style="font-size: 0.7rem; color: var(--text-dim); margin-top: 0.25rem;"></div>
+                </div>
             </div>
 
             <div class="actions" style="display: flex; flex-direction: row; gap: 0.5rem;">
@@ -1003,7 +1035,7 @@
             verifyManifold,
             deduplicateGeometry
         } from './js/math_logic.js?v=6';
-        import { calculateEstimatedPrice } from './js/pricing.js?v=2';
+        import { calculateAggregatorEstimate, calculateLocalPrintEstimate } from './js/pricing.js?v=3';
         import { FontLoader } from 'three/addons/loaders/FontLoader.js';
         import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
         import { Evaluator, Brush, ADDITION, SUBTRACTION } from 'three-bvh-csg';
@@ -1788,18 +1820,49 @@
                     ? `${volumeIn3.toFixed(3)} in³`
                     : `${volumeCm3.toFixed(2)} cm³`;
             }
+
+            // ── Aggregator table ──────────────────────────────────────────────
             const tbody = document.getElementById('pricing-tbody');
             tbody.innerHTML = PRICING_MATERIALS.map(mat => {
                 const cells = PRICING_QTYS.map(qty => {
-                    const price = calculateEstimatedPrice(mat, qty, volumeMm3);
+                    const price = calculateAggregatorEstimate(mat, qty, volumeMm3);
                     return `<td style="text-align: right; color: var(--text-main); padding: 0.1rem 0;">$${price.toFixed(2)}</td>`;
                 }).join('');
-                return `<tr>
-                    <td style="color: var(--text-dim); padding: 0.1rem 0;">${mat}</td>
-                    ${cells}
-                </tr>`;
+                return `<tr><td style="color: var(--text-dim); padding: 0.1rem 0;">${mat}</td>${cells}</tr>`;
             }).join('');
+
+            // ── Local / DIY table ─────────────────────────────────────────────
+            const cpkg = parseFloat(document.getElementById('filament-cost-per-kg')?.value) || 20;
+            const localTbody = document.getElementById('local-pricing-tbody');
+            const timeEl     = document.getElementById('local-pricing-time');
+            localTbody.innerHTML = PRICING_MATERIALS.map(mat => {
+                const cells = PRICING_QTYS.map(qty => {
+                    const r = calculateLocalPrintEstimate(mat, volumeMm3, qty, cpkg);
+                    return `<td style="text-align: right; color: var(--text-main); padding: 0.1rem 0;">$${r.estimatedCostUsd.toFixed(2)}</td>`;
+                }).join('');
+                return `<tr><td style="color: var(--text-dim); padding: 0.1rem 0;">${mat}</td>${cells}</tr>`;
+            }).join('');
+
+            // Time + weight summary uses PLA as the representative material
+            const r1  = calculateLocalPrintEstimate('PLA', volumeMm3, 1,  cpkg);
+            const r10 = calculateLocalPrintEstimate('PLA', volumeMm3, 10, cpkg);
+            const fmtTime = h => {
+                const hrs = Math.floor(h);
+                const mins = Math.round((h - hrs) * 60);
+                return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+            };
+            if (timeEl) {
+                timeEl.textContent = `PLA est. time: ${fmtTime(r1.estimatedTimeHours)} (1×) · ${fmtTime(r10.estimatedTimeHours)} (10×) · ${r1.totalWeightGrams.toFixed(1)}g/pc`;
+            }
         }
+
+        document.getElementById('filament-cost-per-kg')?.addEventListener('input', () => {
+            if (exportGeometry) {
+                const p = exportGeometry.attributes.position.array;
+                const idx = exportGeometry.index.array;
+                updatePricingTable(p, idx);
+            }
+        });
 
         // Helper: Format Dimension (Fractional Inches)
         function formatDim(val) {
