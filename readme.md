@@ -48,6 +48,42 @@ To help visualize what your final display might look like, the generator include
 
 ---
 
+## Estimation Mathematics
+
+### Aggregator Pricing (Cube-Root Volume)
+
+External print-on-demand vendors do not charge based on mesh complexity, triangle count, or text features. They charge based on the physical bounding limits of their build plates. By applying a cube-root to the total job volume, the model simulates the bulk discounts and nesting efficiencies achieved when packing multiple parts into a single print farm job:
+
+```
+TotalJobVolumeCm³ = (singlePartVolumeMm³ / 1000) × quantity
+EstimatedPrice = baseSetupFee + (volumetricMultiplier × ∛TotalJobVolumeCm³)
+```
+
+Cube-root scaling means that doubling the number of parts does not double the price — it scales at roughly 2^(1/3) ≈ 1.26×, matching real aggregator pricing behaviour.
+
+### Local Weight Prediction (Power Law)
+
+STL volume does not linearly equal print weight because FDM parts are mostly hollow. Small parts are dominated by the solid outer shells (higher effective density), while large parts are dominated by the sparse internal infill (lower effective density). The power-law formula accurately maps this shifting ratio:
+
+```
+singleWeightGrams = 1.03 × singleVolumeCm³^0.8 × (materialDensity / 1.24)
+```
+
+The exponent 0.8 (less than 1) captures the sub-linear relationship: a part 10× larger by volume weighs only ~6.3× more, not 10×. The density ratio scales weight for materials denser or lighter than PLA (1.24 g/cm³).
+
+### Local Time Prediction (Linear Regression)
+
+Print time relies almost entirely on active extrusion. The formula accounts for the printer slowing down for outer perimeters (the fixed 153 s overhead per part) while hitting maximum volumetric flow rates for the bulk of the material weight. A fixed 476 s calibration penalty is applied once per job batch:
+
+```
+singlePartPrintSeconds = (71 × singleWeightGrams) + 153
+totalTimeSeconds = 476 + (singlePartPrintSeconds × quantity)
+```
+
+Electricity cost is estimated at 150 W draw at $0.13/kWh over the total print time.
+
+---
+
 ## Application Visuals
 
 ### Dimensional Overlays & Base Calculation
